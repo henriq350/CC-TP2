@@ -307,6 +307,19 @@ func readString(buf *bytes.Reader) (string, error) {
 	return string(strBytes), nil
 }
 
+func (pt PacketType) String() string {
+	switch pt {
+	case TaskPacket:
+		return "TaskPacket"
+	case RegisterPacket:
+		return "RegisterPacket"
+	case ReportPacket:
+		return "ReportPacket"
+	default:
+		return fmt.Sprintf("Unknown(%d)", pt)
+	}
+}
+
 // Print prints the packet information to console
 func (p *Packet) Print() {
 	fmt.Printf("=== Packet Information ===\n")

@@ -29,16 +29,18 @@ func ListenUdp(address string){
 
 
 func read_udp_packet(conn *net.UDPConn){
-	var buf [512]byte
-		_, _, err := conn.ReadFromUDP(buf[0:])
+	//var buf [512]byte
+	buf := make([]byte, 4096)
+		n, addr, err := conn.ReadFromUDP(buf)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("UDP packet received");
-		buf2 := [512]byte{}
 
-		packet,_ := Deserialize(buf2[:]);
+
+		fmt.Printf("Received %d bytes from %s\n", n, addr.String())
+
+		packet,_ := Deserialize(buf[:n]);
 		packet.Print();
 }
 
