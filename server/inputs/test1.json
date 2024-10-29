@@ -1,0 +1,54 @@
+[
+    {
+        "id": 1,
+        "frequency": 20,
+        "devices": [
+            {
+                "id": 1,
+                "device_metrics": {
+                    "cpu_usage": true,
+                    "ram_usage": true,
+                    "interface_stats": ["eth0", "eth1", "eth2"]
+                },
+                "link_metrics": {
+                    "bandwidth": {
+                        "tool": "iperf",
+                        "client": true,
+                        "server_addr": "xxx.xxx.x.x",
+                        "duration": 10,
+                        "transport": "tcp",
+                        "frequency": 30
+                    },
+                    "jitter": {
+                        "tool": "iperf",
+                        "client": true,
+                        "server_addr": "xxx.xxx.x.x",
+                        "duration": 10,
+                        "transport": "tcp",
+                        "frequency": 30
+                    },
+                    "packet_loss": {
+                        "tool": "iperf",
+                        "client": true,
+                        "server_addr": "xxx.xxx.x.x",
+                        "duration": 10,
+                        "transport": "tcp",
+                        "frequency": 30
+                    },
+                    "latency": {
+                        "destination": "xxx.xxx.x.x",
+                        "count": 5,
+                        "frequency": 60
+                    },
+                    "alertflow_conditions": {
+                        "cpu_usage": 80,
+                        "ram_usage": 90,
+                        "interface_stats": 2000,
+                        "packet_loss": 5,
+                        "jitter": 100
+                    }
+                }
+            }
+        ]
+    }
+]
