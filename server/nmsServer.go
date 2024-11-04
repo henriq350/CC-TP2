@@ -2,8 +2,10 @@ package main
 
 import (
 	"ccproj/server/config"
+	"ccproj/server/utils"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -13,6 +15,18 @@ func ParseTasks(filename string) ([]config.Task, error) {
 		return nil, err
 	}
 	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok, errMsg := sutils.ValidateJSON(data); !ok {
+		return nil, fmt.Errorf(errMsg)
+	}
+
+	// Reseta o ponteiro do ficheiro para o inicio
+	file.Seek(0, io.SeekStart)
 
 	var tasks []config.Task
 	err = json.NewDecoder(file).Decode(&tasks)

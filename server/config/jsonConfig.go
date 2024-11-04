@@ -1,13 +1,13 @@
 package config
 
 type Task struct {
-	ID        int16    `json:"id"`
-	Frequency int16    `json:"frequency"`
+	ID        uint16    `json:"id"`
+	Frequency uint16    `json:"frequency"`
 	Devices   []Device `json:"devices"`
 }
 
 type Device struct {
-	ID            int8          `json:"id"`
+	ID            uint8          `json:"id"`
 	DeviceMetrics DeviceMetrics `json:"device_metrics"`
 	LinkMetrics   LinkMetrics   `json:"link_metrics"`
 }
@@ -30,21 +30,21 @@ type MetricsConfig struct {
 	Tool       string `json:"tool"`
 	Client     bool   `json:"client"`
 	ServerAddr string `json:"server_addr"`
-	Duration   int32  `json:"duration"`
+	Duration   uint32  `json:"duration"`
 	Transport  string `json:"transport"`
-	Frequency  int16  `json:"frequency"`
+	Frequency  uint16  `json:"frequency"`
 }
 
 type Latency struct {
 	Destination string `json:"destination"`
-	Count       int16  `json:"count"`
-	Frequency   int16  `json:"frequency"`
+	Count       uint16  `json:"count"`
+	Frequency   uint16  `json:"frequency"`
 }
 
 type AlertFlowConditions struct {
 	CPUUsage       float32 `json:"cpu_usage"`
 	RAMUsage       float32 `json:"ram_usage"`
-	InterfaceStats int32   `json:"interface_stats"`
+	InterfaceStats uint32   `json:"interface_stats"`
 	PacketLoss     float32 `json:"packet_loss"`
-	Jitter         int16   `json:"jitter"`
+	Jitter         uint16   `json:"jitter"`
 }
