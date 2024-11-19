@@ -4,10 +4,13 @@ import (
 	"ccproj/server/config"
 	"ccproj/server/utils"
 	"encoding/json"
+	"net"
+	uh "ccproj/udp_handler"
 	"fmt"
 	"io"
 	"os"
 )
+
 
 func ParseTasks(filename string) ([]config.Task, error) {
 	file, err := os.Open(filename)
@@ -77,4 +80,13 @@ func PrintTasks(tasks []config.Task) {
 	}
 }
 
-//func show_metrics() {}
+
+// Add agent
+func addAgent(agent uh.AgentRegistration, agents map[string]uh.AgentRegistration) {
+	agents[agent.AgentID] = agent
+}
+
+// Remove agent
+func removeAgent(agent uh.AgentRegistration, agents map[string]uh.AgentRegistration) {
+	delete(agents, agent.AgentID)
+}

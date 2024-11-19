@@ -1,13 +1,13 @@
 package config
 
 type Task struct {
-	ID        uint16    `json:"id"`
+	ID        string    `json:"id"`
 	Frequency uint16    `json:"frequency"`
 	Devices   []Device `json:"devices"`
 }
 
 type Device struct {
-	ID            uint8          `json:"id"`
+	ID            string          `json:"id"`
 	DeviceMetrics DeviceMetrics `json:"device_metrics"`
 	LinkMetrics   LinkMetrics   `json:"link_metrics"`
 }

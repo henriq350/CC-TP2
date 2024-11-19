@@ -1,10 +1,10 @@
 [
     {
-        "id": 1,
+        "id": "task-1",
         "frequency": 20,
         "devices": [
             {
-                "id": 1,
+                "id": "r01",
                 "device_metrics": {
                     "cpu_usage": true,
                     "ram_usage": true,
