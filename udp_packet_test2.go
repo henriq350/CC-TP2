@@ -77,7 +77,7 @@ func createReportPacket() *udp_handler.Packet {
 		SequenceNumber: 3,
 		AckNumber:      0,
 		Flags: udp_handler.Flags{
-			SYN: false,
+			SYN: true,
 			ACK: false,
 			RET: false,
 		},
@@ -85,13 +85,13 @@ func createReportPacket() *udp_handler.Packet {
 	}
 }
 
-func sendPacket(conn *net.UDPConn, packet *udp_handler.Packet) error {
+func sendPacket(conn *net.UDPConn, address *net.UDPAddr, packet *udp_handler.Packet) error {
 	serializedData, err := packet.Serialize()
 	if err != nil {
 		return fmt.Errorf("serialization error: %v", err)
 	}
 
-	_, err = conn.Write(serializedData)
+	_, err = conn.WriteToUDP(serializedData,address)
 	if err != nil {
 		return fmt.Errorf("send error: %v", err)
 	}
@@ -108,28 +108,63 @@ func main() {
 	}
 
 	// Create a local address for the client
-	localAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:0")
+	localAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:54310")
 	if err != nil {
 		fmt.Printf("Local address resolution error: %v\n", err)
 		os.Exit(1)
-	}
+	} 
+	//defer conn.Close()
+	// Create separate listening connection
+    listenAddr := localAddr
+    listenConn, err := net.ListenUDP("udp", listenAddr)
+    if err != nil {
+        fmt.Printf("Listen error: %v\n", err)
+        os.Exit(1)
+    } 
 
-	conn, err := net.DialUDP("udp", localAddr, serverAddr)
+	ch := make(chan []string)
+		go func(){
+			for{
+				s := <-ch
+				s = s
+			}
+			
+		}()
+	go udp_handler.ListenUdp("client","",listenConn,ch);
+
+	udp_handler.SetConnState("127.0.0.1:54310:127.0.0.1:8008",1)
+
+
+	// Send report packet
+	fmt.Println("\nSending Report Packet...")
+	reportPacket := createReportPacket()
+	err = sendPacket(listenConn, serverAddr,reportPacket)
 	if err != nil {
-		fmt.Printf("Connection error: %v\n", err)
-		os.Exit(1)
-	}
-	defer conn.Close()
+		fmt.Printf("Failed to send report packet: %v\n", err)
+	} 
 
+
+	time.Sleep(3 * time.Second)
+
+
+	// Send report packet
+	fmt.Println("\nSending Report Packet...")
+	err = sendPacket(listenConn, serverAddr,reportPacket)
+	if err != nil {
+		fmt.Printf("Failed to send report packet: %v\n", err)
+	} 
 	// Send registration packet
-	fmt.Println("\nSending Registration Packet...")
+	/* fmt.Println("\nSending Registration Packet...")
 	regPacket := createRegistrationPacket()
-	err = sendPacket(conn, regPacket)
+	err = sendPacket(listenConn, serverAddr,regPacket)
 	if err != nil {
 		fmt.Printf("Failed to send registration packet: %v\n", err)
-	}
+	} */
 
-	time.Sleep(1 * time.Second)
+	select{}
+
+
+	/* time.Sleep(1 * time.Second)
 
 	// Send task packet
 	fmt.Println("\nSending Task Packet...")
@@ -139,13 +174,13 @@ func main() {
 		fmt.Printf("Failed to send task packet: %v\n", err)
 	}
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(1 * time.Second)*/
 
 	// Send report packet
-	fmt.Println("\nSending Report Packet...")
+	/* fmt.Println("\nSending Report Packet...")
 	reportPacket := createReportPacket()
 	err = sendPacket(conn, reportPacket)
 	if err != nil {
 		fmt.Printf("Failed to send report packet: %v\n", err)
-	}
+	}  */
 }
