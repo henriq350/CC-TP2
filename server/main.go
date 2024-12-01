@@ -6,6 +6,9 @@ import (
 	// "os"
 	//uh "ccproj/udp_handler"
 	"ccproj/server/view"
+	//th "ccproj/tcp_handler"
+	//"fmt"
+	
 )
 
 func main() {
@@ -45,6 +48,8 @@ func main() {
 
 	view.StartGUI()
 
-	// Guardar metricas numa pasta, fazer interface para visualizacao das mesmas
-	//select	{}
+
+
 }
+
+
