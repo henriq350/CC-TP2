@@ -75,7 +75,7 @@ func handleUDPMessage(packet []string, agents map[string]uh.AgentRegistration, l
 			agentMutex.Unlock()
 
 			// Escreve no log e remove o buffer do maps de logs
-			log := fmt.Sprintf("[%s] Agent %s disconnecting...", currentTime, agent.AgentID)
+			log := fmt.Sprintf("[%s] Agent %s disconnected...", currentTime, agent.AgentID)
 			lm.AddLog(agent.AgentID,log)
 			lm.RemoveClientBuffer(agent.AgentID)
 	}
