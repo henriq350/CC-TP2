@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 )
 
 func SetConnState(conn string, state int){
@@ -80,6 +81,9 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 					server_data_states[connstate] = make(map[int]Packet)
 				}
 				server_data_states[connstate][1] = *packet
+
+				//update seq 4 with packet to send
+				server_data_states[connstate][4] = *send
 				
 				sendUDPPacket(con, packet, client_ip)
 			}
@@ -129,6 +133,22 @@ func sendUDPPacket(con *net.UDPConn, p *Packet, destination string) {
 		return
 	}
 }
+
+func sendUDPPacket_(con *net.UDPConn, p *Packet,udpAddr *net.UDPAddr) {
+
+	serialized, err := p.Serialize()
+	if err != nil {
+		fmt.Printf("Error serializing packet: %v\n", err)
+		return
+	}
+
+	_, err = con.WriteToUDP(serialized, udpAddr)
+	if err != nil {
+		fmt.Printf("Error sending UDP packet: %v\n", err)
+		return
+	}
+}
+
 
 
 /*
@@ -289,8 +309,8 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 					// Send SYN+ACK
 					response := &Packet{
 						Type:           RegisterPacket,  
-						SequenceNumber: 1,              
-						AckNumber:      packet.SequenceNumber + 1,
+						SequenceNumber: 2,              
+						AckNumber:      1,
 						Flags: Flags{
 							SYN: true,
 							ACK: true,
@@ -321,8 +341,8 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 					// Send ACK
 					response := &Packet{
 						Type:           RegisterPacket,  
-						SequenceNumber: 1,              
-						AckNumber:      packet.SequenceNumber + 1,
+						SequenceNumber: 3,              
+						AckNumber:      2,
 						Flags: Flags{
 							SYN: false,
 							ACK: true,
@@ -333,10 +353,24 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
 						},
 					}
-					serialized, _ := response.Serialize()
-					connection.WriteToUDP(serialized, addr)
+					sendUDPPacket_(connection,response,addr)
 					connection_states[connID] = 3
-					print("Sender: Sent ACK")
+					print("Sender: Sent ACK")			
+					time.Sleep(1*time.Second)	
+
+
+ 					if packetMap, exists := server_data_states[connID]; exists {
+						// Check if sequence number exists in the connection's packet map
+						if send, exists := packetMap[4]; exists {
+							fmt.Printf("Found packet with sequence 4 for connection %s\n", connID)
+							sendUDPPacket_(connection, &send, addr)
+							fmt.Println("Successfully sent packet with sequence 4")
+						} else {
+							fmt.Printf("No packet with sequence 4 found for connection %s\n", connID)
+						}
+					} else {
+						fmt.Printf("No packets found for connection %s\n", connID)
+					}
 				}
 
 			case 2: // Receiver: sent SYN + ACK
