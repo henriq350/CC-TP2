@@ -292,6 +292,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
         destIP := dest_address.IP.String()
         destPort := dest_address.Port
         connID := fmt.Sprintf("%s:%d:%s:%d", sourceIP, sourcePort, destIP, destPort)
+		destination_ipport := fmt.Sprintf("%s:%d",destIP,destPort)
 		print("Connection ID:\n")
 		print(connID)
 
@@ -384,32 +385,77 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 			case 3: // Sender: Sent ACK/Packet
    				//this should be an ACK
 				//remove timeout, packet from buffer 
+
 			case 4: // Receiver: established connection 
 				print("Receiver: received packet after sending SYN + ACK\n")
-				var a [] string
+				/*
+				server
+				"client_id",”task_id”,"tipo","metrica","valor",”client_ip”,"dest_ip"				
+				client
+				“clientId”,“taskId”,"name","frequencia","threshold","dest_ip",”duration”,”packet_count”
+				*/
 				print(packet.Type.String())
-				if(packet.Type == ReportPacket){
-					reports := packet.Data.([]ReportRecord)
-					length := len(reports)
-					a = make([]string, length,length)
-        
-					// Process each report if needed~
-					print("\nReaceived packet w/ data: Length of ")
-					print(length)
-					for i, report := range reports {
-						// Example: convert each report to string or process it
-						a[i] = fmt.Sprintf("Report %d: %v", i, report)
-						print(a[i])
+				sequence := packet.SequenceNumber;
+				var a [] string
+				 if (packet.Type == TaskPacket){
+/* 					“clientId”,“taskId”,"name","frequencia","threshold","dest_ip",”duration”,”packet_count”
+ */
+					a = make([] string, 8,8)
+					a[0] = "0"
+					a[1] = "1"
+					 r := packet.Data.(TaskRecord)
+					a[2] = r.Name
+					a[3] = fmt.Sprint(r.ReportFreq)
+					a[4] = r.CriticalValues[0]
+					a[5] = destination_ipport 
+					a[6] = "10"
+					a[7] = "10"
+				} else {
+/* 					"client_id",”task_id”,"tipo","metrica","valor",”client_ip”,"dest_ip"				
+ */
+					if(packet.Type == RegisterPacket){
+						a = make([]string,7,7)
+						a[0] = "0"
+						a[1] = "1"
+						r := packet.Data.(TaskRecord)
+						a[2] = r.Name
+						a[3] = fmt.Sprint(r.ReportFreq)
+						a[4] = r.CriticalValues[0]
+						a[5] = destination_ipport 
+						a[6] = "10"
+						a[7] = "10"
+					}
+					if(packet.Type == ReportPacket){
+						reports := packet.Data.([]ReportRecord)
+						length := len(reports)
+						a = make([]string, length,length)
+			
+						// Process each report if needed~
+						print("\nReaceived packet w/ data: Length of ")
+						print(length)
+						for i, report := range reports {
+							// Example: convert each report to string or process it
+							a[i] = fmt.Sprintf("Report %d: %v", i, report)
+							print(a[i])
+						}
 					}
 				}
+					response := &Packet{
+						Type:           RegisterPacket,  
+						SequenceNumber: sequence+1,
+						AckNumber:      sequence,
+						Flags: Flags{
+							SYN: false,
+							ACK: true,
+							RET: false,
+						},
+						Data: AgentRegistration{      // Add this
+							AgentID: "server-001",    // Use appropriate ID
+							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
+						},
+					}
+					sendUDPPacket_(connection,response,addr)
 				channel <- a
-				//channel chan [] string 
-				//deserialize packet
-				//packet
-				//if server 
-					//write to channel
-				// if client
-					//add task 
 			//// Finalize connection //////////////////////////////////////////////////////
 			// sends FIN
 			// receives FIN, sends FIN+ACK
