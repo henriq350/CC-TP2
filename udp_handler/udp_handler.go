@@ -26,7 +26,7 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 			frequency := a[2]
 			threshold := a[3]
 			client_ip := a[4]
-			dest_ip := a[5]
+			//dest_ip := a[5]
 
 			// Get local address details
 			localAddr := con.LocalAddr().(*net.UDPAddr)
@@ -34,9 +34,11 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 			localPort := localAddr.Port
 
 			// Parse destination address for port
-			destAddr, err := net.ResolveUDPAddr("udp", dest_ip)
+			destAddr, err := net.ResolveUDPAddr("udp", client_ip)
 			if err != nil {
 				fmt.Printf("Error resolving destination address: %v\n", err)
+				print(client_ip)
+				print("\n")
 				continue
 			}
 			destIP := destAddr.IP.String()
@@ -95,7 +97,12 @@ func getTaskPacket(client_ip, metrica, frequencia, threshold string, sequence ui
 	freq := 0
 	// Convert frequency string to int (add error handling as needed)
 	fmt.Sscanf(frequencia, "%d", &freq)
-
+	tr := TaskRecord{
+		Name:           metrica,
+		Value:          "0",
+		ReportFreq:     uint32(freq),
+		CriticalValues: []string{threshold},
+	}
 	return &Packet{
 		Type:           TaskPacket,
 		SequenceNumber: sequence,
@@ -105,12 +112,7 @@ func getTaskPacket(client_ip, metrica, frequencia, threshold string, sequence ui
 			ACK: false,
 			RET: false,
 		},
-		Data: TaskRecord{
-			Name:           metrica,
-			Value:          "0",
-			ReportFreq:     uint32(freq),
-			CriticalValues: []string{threshold},
-		},
+		Data: []TaskRecord{tr},
 	}
 }
 
@@ -280,10 +282,10 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 			continue
 		}
 
-		fmt.Printf("Received %d bytes from %s\n", n, addr.String())
+		//fmt.Printf("Received %d bytes from %s\n", n, addr.String())
 
 		packet,_ := Deserialize(buf[:n]);
-		packet.Print()
+		//packet.Print()
 
 		// Create connection id
         sourceIP := source_address.IP.String()
@@ -301,11 +303,11 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
         if !exists {
             state = 0
         }
-		print("Received packet.")
+		print("\nReceived packet.\n")
 		switch state {
 			/// Initialize connection //////////////////////////////////////////////////////
 			case 0: // No connection
-				print("No connection on packet received.")
+				print("No connection on packet received.\n")
 				if packet.Flags.SYN && !packet.Flags.ACK {
 					// Send SYN+ACK
 					response := &Packet{
@@ -322,22 +324,22 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
 						},
 					}
-					print("PRINT")
-					packet.Print()
+					 /* print("PRINT")
+					packet.Print()*/
 					serialized, _ := response.Serialize()
-					print("serialized.length\n")
+					/* print("serialized.length\n")
 					print("ADDRESS sent:")
 					print(addr.String())
-					print(len(serialized))
+					print(len(serialized)) */
 					connection.WriteToUDP(serialized, addr)
 					connection_states[connID] = 2
-					print("Sent Syn + ACK")
+					print("Sent Syn + ACK\n")
 				} else {
 					fmt.Printf("Expected SYN on connection state 0: %s\n", connID)
 				}
 			
 			case 1: // Sender: sent SYN
-				print("Sender: Received packet after sending SYN")
+				print("Sender: Received packet after sending SYN\n")
 				if packet.Flags.SYN && packet.Flags.ACK {
 					// Send ACK
 					response := &Packet{
@@ -356,7 +358,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 					}
 					sendUDPPacket_(connection,response,addr)
 					connection_states[connID] = 3
-					print("Sender: Sent ACK")			
+					print("Sender: Sent ACK\n")			
 					time.Sleep(1*time.Second)	
 
 
@@ -364,8 +366,10 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						// Check if sequence number exists in the connection's packet map
 						if send, exists := packetMap[4]; exists {
 							fmt.Printf("Found packet with sequence 4 for connection %s\n", connID)
+							send.Print()
+							
 							sendUDPPacket_(connection, &send, addr)
-							fmt.Println("Successfully sent packet with sequence 4")
+							fmt.Println("Successfully sent packet with sequence 4\n")
 						} else {
 							fmt.Printf("No packet with sequence 4 found for connection %s\n", connID)
 						}
@@ -375,10 +379,10 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 				}
 
 			case 2: // Receiver: sent SYN + ACK
-				print("Receiver: received packet after sending SYN + ACK")
+				print("Receiver: received packet after sending SYN + ACK\n")
 				if packet.Flags.ACK && !packet.Flags.SYN {
 					connection_states[connID] = 4
-					print("Receiver: received packet after sending SYN + ACK")
+					print("Receiver: received packet after sending SYN + ACK\n")
 				}
 
 			/// Send Data //////////////////////////////////////////////////////
@@ -403,7 +407,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 					a = make([] string, 8,8)
 					a[0] = "0"
 					a[1] = "1"
-					 r := packet.Data.(TaskRecord)
+					 r := packet.Data.([]TaskRecord)[0]
 					a[2] = r.Name
 					a[3] = fmt.Sprint(r.ReportFreq)
 					a[4] = r.CriticalValues[0]
@@ -431,12 +435,12 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						a = make([]string, length,length)
 			
 						// Process each report if needed~
-						print("\nReaceived packet w/ data: Length of ")
-						print(length)
+					/* 	print("\nReaceived packet w/ data: Length of ")
+						print(length) */
 						for i, report := range reports {
 							// Example: convert each report to string or process it
 							a[i] = fmt.Sprintf("Report %d: %v", i, report)
-							print(a[i])
+							//print(a[i])
 						}
 					}
 				}
