@@ -23,8 +23,8 @@ func ValidateJSON(data []byte) (bool, string) {
             return false, "Error: Task is not a valid object"
         }
 
-        if id, ok := taskMap["id"].(float64); !ok || id < 0 || id > 65535 {
-            return false, fmt.Sprintf("Error: Task ID is not a valid uint16, got %v", id)
+        if id, ok := taskMap["id"].(string); !ok {
+            return false, fmt.Sprintf("Error: Task ID is not a valid string, got %v", id)
         }
         if frequency, ok := taskMap["frequency"].(float64); !ok || frequency < 0 || frequency > 65535 {
             return false, fmt.Sprintf("Error: Task frequency is not a valid uint16, got %v", frequency)
@@ -38,8 +38,8 @@ func ValidateJSON(data []byte) (bool, string) {
                     return false, "Error: Device is not a valid object"
                 }
 
-                if id, ok := deviceMap["id"].(float64); !ok || id < 0 || id > 255 {
-                    return false, fmt.Sprintf("Error: Device ID is not a valid uint8, got %v", id)
+                if id, ok := deviceMap["id"].(string); !ok{
+                    return false, fmt.Sprintf("Error: Device ID is not a valid string, got %v", id)
                 }
 
                 // Check deviceMetrics

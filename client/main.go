@@ -2,7 +2,6 @@ package main
 
 import (
 	cNetTask "ccproj/client/clientNetTask"
-	"ccproj/client/nmsClient"
 	"ccproj/client/tasks"
 	"fmt"
 	"os"
@@ -19,6 +18,7 @@ func main() {
         fmt.Println("Insert server IP with the following ports UDP and TCP\nExample: go run main.go 10.0.0.1 9090 8080\n")
         os.Exit(1)
     }
+
     serverIP := os.Args[1]
     validateServerIP(serverIP)
 
@@ -28,10 +28,18 @@ func main() {
     udpServerAddr := fmt.Sprintf("%s:%d", serverIP, udpPort)
     tcpServerAddr := fmt.Sprintf("%s:%d", serverIP, tcpPort)
 
+	clientip, err := getLocalIP()
+    if err != nil {
+        fmt.Printf("Erro ao obter o IP local: %v\n", err)
+        return
+    }
+
+	clientIP := fmt.Sprintf("%s:8080", clientip)
+
 	clientID := getClientID()
 	fmt.Print("%s Running... \n", clientID)
 
-	Tasks := make(map[string]nmsClient.Task)
+	Tasks := make(map[string]tasks.Task)
 	taskChannel := make(chan []string)
 
 	go cNetTask.HandleUDP(udpServerAddr, taskChannel)

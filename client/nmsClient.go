@@ -36,3 +36,19 @@ func getClientID() string {
     return clientID
 }
 
+func getLocalIP() (string, error) {
+    addrs, err := net.InterfaceAddrs()
+    if err != nil {
+        return "", err
+    }
+
+    for _, addr := range addrs {
+        if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+            if ipNet.IP.To4() != nil {
+                return ipNet.IP.String(), nil
+            }
+        }
+    }
+
+    return "", fmt.Errorf("Failed to get local IP")
+}

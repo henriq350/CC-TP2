@@ -1,7 +1,7 @@
 package cNetTask
 
 import (
-	uh "ccproject/udp_handler"
+	uh "ccproj/udp_handler"
 	"fmt"
 )
 

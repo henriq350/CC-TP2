@@ -7,8 +7,8 @@
                 "id": "r01",
                 "device_metrics": {
                     "cpu_usage": true,
-                    "ram_usage": true,
-                    "interface_stats": ["eth0", "eth1", "eth2"]
+                    "ram_usage": false,
+                    "interface_stats": ["eth0", "eth1", "eth2"] //ips
                 },
                 "link_metrics": {
                     "bandwidth": {

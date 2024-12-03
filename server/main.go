@@ -37,6 +37,7 @@ func main() {
 		return
 	}
 
+	fmt.Println("Parsing configuration file...")
 	tasks, err := ParseTasks(configFile)
 	if err != nil {
 		fmt.Println(err)
@@ -44,26 +45,32 @@ func main() {
 	}
 
 	logs := db.NewLogManager()
+	fmt.Println("Agent maps created...")
 	agents := make(map[string]types.Agent)
 	
 	sendChannel := make(chan []string)
 	defer close(sendChannel)
 
+	fmt.Println("Logs created...")
 	go logs.PersistLogs()
 
 	// Listener UDP, para resgistos, metricas, confirmacoes
+	fmt.Println("Starting UDP listener...")
 	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel)
 
 	// Listener TCP para alertas
+	fmt.Println("Starting TCP listener...")
 	go sAlertFlow.HandleTCP(tcpServerAddr, agents, logs)
 
 	// timer para enviar tarefas
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(5* time.Second)
 	fmt.Println("Sending tasks to agents...\n")
 	SendTask(agents, tasks, sendChannel)
 	fmt.Printf("Tasks sent to agents...\n")
 
+	fmt.Println("Starting GUI...")
+	time.Sleep(5 * time.Second)
 	view.StartGUI()
 
 }

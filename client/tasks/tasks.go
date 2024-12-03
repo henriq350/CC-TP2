@@ -2,8 +2,8 @@ package tasks
 
 
 import (
-	met "ccproject/client/metrics"
-	th "ccproject/tcp_handler"
+	"ccproj/client/metrics"
+	th "ccproj/tcp_handler"
 	"fmt"
 	"strconv"
 	"time"
@@ -117,7 +117,7 @@ func monitorCPU(frequency int, threshold float32, send chan <- []string) {
     for {
         select {
         case <-ticker.C:
-            cpuUsage, err := met.GetCPUUsage()
+            cpuUsage, err := metrics.GetCPUUsage()
             if err != nil {
                 fmt.Println("Error getting CPU usage:", err)
                 continue
@@ -136,7 +136,7 @@ func monitorRAM(frequency int, threshold float32, send chan <- []string) {
     for {
         select {
         case <-ticker.C:
-            ramUsage, err := met.GetRAMUsage()
+            ramUsage, err := metrics.GetRAMUsage()
             if err != nil {
                 fmt.Println("Error getting RAM usage:", err)
                 continue
@@ -156,7 +156,7 @@ func monitorBandwidth(frequency int, ipDest string, duration int, send chan <- [
     for {
         select {
         case <-ticker.C:
-            bandwidth, _, err := met.iperfMetrics(ipDest, duration)
+            bandwidth, _, err := metrics.iperfMetrics(ipDest, duration)
             if err != nil {
                 fmt.Println("Error getting bandwidth:", err)
                 continue
@@ -176,7 +176,7 @@ func monitorLatency(frequency int, ipDest string, count int, send chan <- []stri
     for {
         select {
         case <-ticker.C:
-            latency, _, err := met.pingMetrics(ipDest, count)
+            latency, _, err := metrics.pingMetrics(ipDest, count)
             if err != nil {
                 fmt.Println("Error getting latency:", err)
                 continue
@@ -196,7 +196,7 @@ func monitorPacketLoss(frequency int, threshold float32, ipDest string, count in
     for {
         select {
         case <-ticker.C:
-            _, packetLoss, err := met.pingMetrics(ipDest, count)
+            _, packetLoss, err := metrics.pingMetrics(ipDest, count)
             if err != nil {
                 fmt.Println("Error getting packet loss:", err)
                 continue
@@ -217,7 +217,7 @@ func monitorJitter(frequency int, threshold float32, ipDest string, duration int
     for {
         select {
         case <-ticker.C:
-            _, jitter, err := met.iperfMetrics(ipDest, duration)
+            _, jitter, err := metrics.iperfMetrics(ipDest, duration)
             if err != nil {
                 fmt.Println("Error getting jitter:", err)
                 continue
