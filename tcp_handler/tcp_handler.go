@@ -13,13 +13,13 @@ type AlertMetric int
 const (
 	CPUUsage AlertMetric = iota + 1
     RAMUsage
-    InterfaceStats
     PacketLoss
     Jitter
 )
 
 type AlertMessage struct {
 	AgentID string
+	TaskID string
 	AlertMetric AlertMetric
 	Threshold float32
 	Value float32
@@ -32,8 +32,6 @@ func (am AlertMetric) String() string {
         return "CPU Usage"
     case RAMUsage:
         return "RAM Usage"
-    case InterfaceStats:
-        return "Interface Stats"
     case PacketLoss:
         return "Packet Loss"
     case Jitter:
@@ -91,7 +89,7 @@ func handleTcpConnection(conn net.Conn, alertChan chan<- AlertMessage) {
 func SendAlert(address string, alert AlertMessage) {
 	conn, err := net.Dial("tcp", address)
 	if err != nil {
-		fmt.Println("Eerror connecting to TCP server:", err)
+		fmt.Println("Error connecting to TCP server:", err)
 		return
 	}
 	defer conn.Close()

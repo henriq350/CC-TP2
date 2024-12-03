@@ -3,15 +3,17 @@ package main
 import (
 	"ccproj/server/config"
 	"ccproj/server/utils"
-	uh "ccproj/udp_handler"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net"
 	"os"
-	"sync"
 )
 
+type Agent struct {
+	AgentID string
+	AgentIP string
+}
 
 
 func ParseTasks(filename string) ([]config.Task, error) {
@@ -42,54 +44,83 @@ func ParseTasks(filename string) ([]config.Task, error) {
 	return tasks, nil
 }
 
-// Funcao de teste
-func PrintTasks(tasks []config.Task) {
-	for _, task := range tasks {
-		fmt.Printf("Task ID: %d\n", task.ID)
-		fmt.Printf("Task Frequency: %d\n", task.Frequency)
-		for _, device := range task.Devices {
-			fmt.Printf("\tDevice ID: %d\n", device.ID)
-			fmt.Printf("\tDevice CPU Usage: %t\n", device.DeviceMetrics.CPUUsage)
-			fmt.Printf("\tDevice RAM Usage: %t\n", device.DeviceMetrics.RAMUsage)
-			fmt.Printf("\tDevice Interface Stats: %v\n", device.DeviceMetrics.InterfaceStats)
-			fmt.Printf("\tLink Bandwidth Tool: %s\n", device.LinkMetrics.Bandwidth.Tool)
-			fmt.Printf("\tLink Bandwidth Client: %t\n", device.LinkMetrics.Bandwidth.Client)
-			fmt.Printf("\tLink Bandwidth Server Address: %s\n", device.LinkMetrics.Bandwidth.ServerAddr)
-			fmt.Printf("\tLink Bandwidth Duration: %d\n", device.LinkMetrics.Bandwidth.Duration)
-			fmt.Printf("\tLink Bandwidth Transport: %s\n", device.LinkMetrics.Bandwidth.Transport)
-			fmt.Printf("\tLink Bandwidth Frequency: %d\n", device.LinkMetrics.Bandwidth.Frequency)
-			fmt.Printf("\tLink Jitter Tool: %s\n", device.LinkMetrics.Jitter.Tool)
-			fmt.Printf("\tLink Jitter Client: %t\n", device.LinkMetrics.Jitter.Client)
-			fmt.Printf("\tLink Jitter Server Address: %s\n", device.LinkMetrics.Jitter.ServerAddr)
-			fmt.Printf("\tLink Jitter Duration: %d\n", device.LinkMetrics.Jitter.Duration)
-			fmt.Printf("\tLink Jitter Transport: %s\n", device.LinkMetrics.Jitter.Transport)
-			fmt.Printf("\tLink Jitter Frequency: %d\n", device.LinkMetrics.Jitter.Frequency)
-			fmt.Printf("\tLink Packet Loss Tool: %s\n", device.LinkMetrics.PacketLoss.Tool)
-			fmt.Printf("\tLink Packet Loss Client: %t\n", device.LinkMetrics.PacketLoss.Client)
-			fmt.Printf("\tLink Packet Loss Server Address: %s\n", device.LinkMetrics.PacketLoss.ServerAddr)
-			fmt.Printf("\tLink Packet Loss Duration: %d\n", device.LinkMetrics.PacketLoss.Duration)
-			fmt.Printf("\tLink Packet Loss Transport: %s\n", device.LinkMetrics.PacketLoss.Transport)
-			fmt.Printf("\tLink Packet Loss Frequency: %d\n", device.LinkMetrics.PacketLoss.Frequency)
-			fmt.Printf("\tLink Latency Destination: %s\n", device.LinkMetrics.Latency.Destination)
-			fmt.Printf("\tLink Latency Count: %d\n", device.LinkMetrics.Latency.Count)
-			fmt.Printf("\tLink Latency Frequency: %d\n", device.LinkMetrics.Latency.Frequency)
-			fmt.Printf("\tLink Alert Flow Conditions CPU Usage: %f\n", device.LinkMetrics.AlertFlowConditions.CPUUsage)
-			fmt.Printf("\tLink Alert Flow Conditions RAM Usage: %f\n", device.LinkMetrics.AlertFlowConditions.RAMUsage)
-			fmt.Printf("\tLink Alert Flow Conditions Interface Stats: %d\n", device.LinkMetrics.AlertFlowConditions.InterfaceStats)
-			fmt.Printf("\tLink Alert Flow Conditions Packet Loss: %f\n", device.LinkMetrics.AlertFlowConditions.PacketLoss)
-			fmt.Printf("\tLink Alert Flow Conditions Jitter: %d\n", device.LinkMetrics.AlertFlowConditions.Jitter)
-		}
-	}
-}
-
 
 // Add agent
-func addAgent(agent uh.AgentRegistration, agents map[string]uh.AgentRegistration) {
+func AddAgent(agent Agent, agents map[string]Agent) {
 	agents[agent.AgentID] = agent
 }
 
 // Remove agent
-func removeAgent(agent uh.AgentRegistration, agents map[string]uh.AgentRegistration) {
+func RemoveAgent(agent Agent, agents map[string]Agent) {
 	delete(agents, agent.AgentID)
 }
 
+// TODO
+func SendTask(agents map[string]Agent , tasks []config.Task, sendChannel chan <- []string) {
+
+    agentList := make([]Agent, 0, len(agents))
+    for _, agent := range agents {
+        agentList = append(agentList, agent)
+    }
+
+    if len(agentList) == 0 {
+        fmt.Println("Empty agent list")
+        return
+    }
+
+    agentIndex := 0
+
+    for _, task := range tasks {
+        for i, device := range task.Devices {
+			
+			// Distributes the tasks to the agents equally
+            agent := agentList[agentIndex]
+            agentIndex = (agentIndex + 1) % len(agentList)
+
+
+            if device.DeviceMetrics.CPUUsage {
+                message := []string{
+                    task.ID, "CPU", fmt.Sprintf("%d", task.Frequency), fmt.Sprintf("%.2f", task.Devices[i].LinkMetrics.AlertFlowConditions.CPUUsage),
+                    agent.AgentIP, "0", "0", "0",
+                }
+                sendChannel <- message
+            }
+            if device.DeviceMetrics.RAMUsage {
+                message := []string{
+                    task.ID, "RAM", fmt.Sprintf("%d", task.Frequency), fmt.Sprintf("%.2f", task.Devices[i].LinkMetrics.AlertFlowConditions.RAMUsage),
+                    agent.AgentIP, "0", "0", "0",
+                }
+                sendChannel <- message
+            }
+			if device.LinkMetrics.Bandwidth {
+                message := []string{
+                    task.ID, "Bandwidth", fmt.Sprintf("%d", task.Frequency), "",
+                    agent.AgentIP, "0", task.Devices[i].LinkMetrics.Bandwidth.Duration, "",
+                }
+                sendChannel <- message
+            }
+			if device.LinkMetrics.Latency {
+                message := []string{
+                    task.ID, "Latency", fmt.Sprintf("%d", task.Frequency), "",
+                    agent.AgentIP, task.Devices[i].LinkMetrics.Latency.Destination, "", task.Devices[i].LinkMetrics.Latency.Count,
+                }
+                sendChannel <- message
+            }
+			if device.LinkMetrics.PacketLoss {
+                message := []string{
+                    task.ID, "PacketLoss", fmt.Sprintf("%d", task.Frequency), fmt.Sprintf("%.2f", task.Devices[i].LinkMetrics.AlertFlowConditions.PacketLoss),
+                    agent.AgentIP, task.Devices[i].LinkMetrics.PacketLoss.Destination , "", task.Devices[i].LinkMetrics.PacketLoss.Count,
+                }
+                sendChannel <- message
+            }
+			if device.LinkMetrics.Jitter {
+                message := []string{
+                    task.ID, "Jitter", fmt.Sprintf("%d", task.Frequency), fmt.Sprintf("%.2f", task.Devices[i].LinkMetrics.AlertFlowConditions.Jitter),
+                    agent.AgentIP,  , task.Devices[i].LinkMetrics.Jitter.Duration, "",
+                }
+                sendChannel <- message
+            }
+           
+        }
+    }
+}

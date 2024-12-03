@@ -44,7 +44,7 @@ func SaveFile(clientName, fileName string, data []byte) error {
     return nil
 }
 
-// Cria pasta para cada cliente dentro da pasta client_metrics
+// Create folder for each client on folder client_metrics
 func CreateFolder(client string) error {
 	clientDir := filepath.Join("../client_metrics", client)
 	err := os.MkdirAll(clientDir, os.ModePerm)
@@ -69,7 +69,8 @@ func CreateLog(dir string) error {
     return nil
 }
 
-// TODO - Implementar uma formataca em uma string para ser salva em um arquivo
+// packet -  "metrica" ,  "valor"  ,”client_ip” ,"dest_ip" ,”task_id” 
+// packet -  packet[0] , packet[1]  ,packet[2]  ,packet[3]  packet[4] 
 func FormatString(data []string) (string, string) {
 
     var fmtData strings.Builder
@@ -80,10 +81,10 @@ func FormatString(data []string) (string, string) {
     for i := 0; i < len(data); i += 5 {
         metric := data[i]
         value := data[i+1]
-        device := data[i+2]
-        sourceIP := data[i+3]
-        destIP := data[i+4]
-        fmtData.WriteString(fmt.Sprintf("%s: %s\nDevice: %s\nSource IP: %s\nDestination IP: %s\n", metric, value, device, sourceIP, destIP))
+        sourceIP := data[i+2]
+        destIP := data[i+3]
+        taskID := data[i+4]
+        fmtData.WriteString(fmt.Sprintf("=======[TasK %s]=======\n%s: %s\nSource IP: %s\nDestination IP: %s\n", taskID, metric, value, sourceIP, destIP))
     }
 
     return fmtData.String(), currentTime
@@ -106,19 +107,19 @@ func NewLogManager() *LogManager {
 
 
 // log to client
-func (lm *LogManager) AddLog(clientID, log string) {
+func (lm *LogManager) AddLog(clientID, log string, time string) {
     lm.Mutex.Lock()
     defer lm.Mutex.Unlock()
 
     if _, exists := lm.ClientBuffers[clientID]; !exists {
         lm.ClientBuffers[clientID] = []string{}
     }
-
+    
     // Adiciona o log ao client
-    lm.ClientBuffers[clientID] = append(lm.ClientBuffers[clientID], log)
+    lm.ClientBuffers[clientID] = append(lm.ClientBuffers[clientID], fmt.Sprintf("[%s] %s", time, log))
 
     // Formata o log para ser usado no log geral
-    entry := fmt.Sprintf("[%s] %s", clientID, log)
+    entry := fmt.Sprintf("[%s][%s] %s", time, clientID, log)
     lm.GeneralBuffer = append(lm.GeneralBuffer, entry)
 
 }   

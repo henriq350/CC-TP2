@@ -2,9 +2,9 @@ package sNetTask
 
 import (
 	"ccproj/server/db"
+	"ccproj/server/main"
 	uh "ccproj/udp_handler"
 	"fmt"
-	"main"
 	"sync"
 	"time"
 )
@@ -20,20 +20,22 @@ func HandleUDP(udpAddr string, agents map[string]uh.AgentRegistration, lm *db.Lo
 
 	//Receber mensagem e decidir o q fazer com ela
 	for packet := range receiveChannel {
-		handleUDPMessage(packet, agents, lm)
+		go handleUDPMessage(packet, agents, lm)
 	}
 	// Envia mensagem (com a task e ACKs) para os agents
 
 }
 
+// packet - "client_id" ,”task_id”  ,"tipo"    ,"metrica" ,"valor"  ,”client_ip”,"dest_ip"
+// packet -  packet[0] , packet[1] ,packet[2] ,packet[3] packet[4] ,packet[5]   ,packet[6]
+
 func handleUDPMessage(packet []string, agents map[string]uh.AgentRegistration, lm *db.LogManager) {
 
-	switch packet[0] {
+	switch packet[2] {
 		case "Register":
-			// Envia ACK
 			
 			// Cria um agente a partir do pacote
-			agent := getAgent(packet)
+			agent := main.Agent{packet[0], packet[5]}
 			currentTime := time.Now().Format("2024-11-14 15:04:05")
 
 			// Adiciona a lista de agentes
@@ -43,53 +45,41 @@ func handleUDPMessage(packet []string, agents map[string]uh.AgentRegistration, l
 
 			// Adiciona Log
 			log := fmt.Sprintf("[%s] Agent %s registered", currentTime, agent.AgentID)
-			lm.AddLog(agent.AgentID,log)
+			lm.AddLog(agent.AgentID, log, currentTime)
 			
 		case "Report":
 			
-			// Remove Tipo do array
-			metrics := packet[1:]
-			agent := getAgent(packet)
+			agentID := packet[0]
 
-			formatedString, currentTime := db.FormatString(metrics)
+			aux := packet[1]
+			metrics := packet[3:]
+			metrics = append(metrics, aux)
 
-			// TODO com a estrutura q vier do udp_handler, pegar o nome do cliente
-			//clientName := 
+			formatedString, currentTime := db.FormatString(metrics) 
 
 			filename := fmt.Sprintf("%s", &currentTime)
 
-			db.StringToFile(clientName,filename,formatedString)
+			db.StringToFile(agentID , filename, formatedString)
 
 			// Adiciona nos Logs
-			log := fmt.Sprintf("[%s] Package received", currentTime)
-			lm.AddLog(agent.AgentID ,log)
+			log := fmt.Sprintf("Package received")
+			lm.AddLog(agentID ,log, currentTime)
 
 		case "Terminate":
-			// Envia ACK
-			agent := getAgent(packet)
+			
+			agent := main.Agent{packet[0], packet[5]}
 			currentTime := time.Now().Format("2024-11-14 15:04:05")
 
-			// Remove da lista de agents
+			
 			agentMutex.Lock()
 			main.RemoveAgent(agent, agents)
 			agentMutex.Unlock()
 
 			// Escreve no log e remove o buffer do maps de logs
-			log := fmt.Sprintf("[%s] Agent %s disconnected...", currentTime, agent.AgentID)
-			lm.AddLog(agent.AgentID,log)
+			log := fmt.Sprintf("Agent %s disconnected...", agent.AgentID)
+			lm.AddLog(agent.AgentID, log, currentTime)
 			lm.RemoveClientBuffer(agent.AgentID)
 	}
 }
 
-// TODO
-func SendTaskToAgent(agent uh.AgentRegistration, task uh.Task) {
-	// Envia a task para o agente
-}
 
-
-// TODO refazer esta funcao, esperar pelo tipo de Agent para importar para este package
-func getAgent(packet uh.Packet) uh.AgentRegistration {
-	
-	agent := uh.AgentRegistration{packet.Data.AgentID, packet.Data.IPv4}
-	return agent
-}

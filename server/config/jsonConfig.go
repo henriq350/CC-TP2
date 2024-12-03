@@ -21,7 +21,7 @@ type DeviceMetrics struct {
 type LinkMetrics struct {
 	Bandwidth           MetricsConfig       `json:"bandwidth"`
 	Jitter              MetricsConfig       `json:"jitter"`
-	PacketLoss          MetricsConfig       `json:"packet_loss"`
+	PacketLoss          Latency       `json:"packet_loss"`
 	Latency             Latency             `json:"latency"`
 	AlertFlowConditions AlertFlowConditions `json:"alertflow_conditions"`
 }

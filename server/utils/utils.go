@@ -115,23 +115,14 @@ func ValidateJSON(data []byte) (bool, string) {
 
                     // Check PacketLoss
                     if packetLoss, ok := linkMetrics["packet_loss"].(map[string]interface{}); ok {
-                        if _, ok := packetLoss["tool"].(string); !ok {
-                            return false, "Error: PacketLoss tool is not a valid string"
+                        if _, ok := packetLoss["destination"].(string); !ok {
+                            return false, "Error: packetLoss destination is not a valid string"
                         }
-                        if _, ok := packetLoss["client"].(bool); !ok {
-                            return false, "Error: PacketLoss client is not a valid bool"
-                        }
-                        if _, ok := packetLoss["server_addr"].(string); !ok {
-                            return false, "Error: PacketLoss server address is not a valid string"
-                        }
-                        if duration, ok := packetLoss["duration"].(float64); !ok || duration < 0 || duration > 4294967295 {
-                            return false, fmt.Sprintf("Error: PacketLoss duration is not a valid uint32, got %v", duration)
-                        }
-                        if _, ok := packetLoss["transport"].(string); !ok {
-                            return false, "Error: PacketLoss transport is not a valid string"
+                        if count, ok := packetLoss["count"].(float64); !ok || count < 0 || count > 65535 {
+                            return false, fmt.Sprintf("Error: packetLoss count is not a valid uint16, got %v", count)
                         }
                         if frequency, ok := packetLoss["frequency"].(float64); !ok || frequency < 0 || frequency > 65535 {
-                            return false, fmt.Sprintf("Error: PacketLoss frequency is not a valid uint16, got %v", frequency)
+                            return false, fmt.Sprintf("Error: packetLoss frequency is not a valid uint16, got %v", frequency)
                         }
                     } else {
                         return false, "Error: PacketLoss is not a valid object"

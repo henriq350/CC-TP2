@@ -1,5 +1,4 @@
-package main
-
+package metrics
 import (
 	"bufio"
 	"bytes"
@@ -112,26 +111,26 @@ func iperfMetrics(target string, duration int) (float64, float64, error) {
 }
 
 
-func main() {
-	target := "127.0.0.1"  // Servidor de teste (alvo)
-	pingCount := 4       // Número de pacotes de ping
-	iperfDuration := 10  // Duração do teste do iperf em segundos
+// func main() {
+// 	target := "127.0.0.1"  // Servidor de teste (alvo)
+// 	pingCount := 4       // Número de pacotes de ping
+// 	iperfDuration := 10  // Duração do teste do iperf em segundos
 
-	// Medindo latência e perda de pacotes
-	latency, packetLoss, err := pingMetrics(target, pingCount)
-	if err != nil {
-		fmt.Println("Erro ao medir latência e perda de pacotes:", err)
-		return
-	}
-	fmt.Printf("Latência média: %.2f ms\n", latency)
-	fmt.Printf("Perda de pacotes: %.2f%%\n", packetLoss)
+// 	// Medindo latência e perda de pacotes
+// 	latency, packetLoss, err := pingMetrics(target, pingCount)
+// 	if err != nil {
+// 		fmt.Println("Erro ao medir latência e perda de pacotes:", err)
+// 		return
+// 	}
+// 	fmt.Printf("Latência média: %.2f ms\n", latency)
+// 	fmt.Printf("Perda de pacotes: %.2f%%\n", packetLoss)
 
-	// Medindo largura de banda e jitter
-	bandwidth, jitter, err := iperfMetrics(target, iperfDuration)
-	if err != nil {
-		fmt.Println("Erro ao medir largura de banda e jitter:", err)
-		return
-	}
-	fmt.Printf("Largura de banda: %.2f Mbps\n", bandwidth)
-	fmt.Printf("Jitter: %.2f ms\n", jitter)
-}
+// 	// Medindo largura de banda e jitter
+// 	bandwidth, jitter, err := iperfMetrics(target, iperfDuration)
+// 	if err != nil {
+// 		fmt.Println("Erro ao medir largura de banda e jitter:", err)
+// 		return
+// 	}
+// 	fmt.Printf("Largura de banda: %.2f Mbps\n", bandwidth)
+// 	fmt.Printf("Jitter: %.2f ms\n", jitter)
+// }

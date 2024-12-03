@@ -28,12 +28,9 @@
                         "frequency": 30
                     },
                     "packet_loss": {
-                        "tool": "iperf",
-                        "client": true,
-                        "server_addr": "xxx.xxx.x.x",
-                        "duration": 10,
-                        "transport": "tcp",
-                        "frequency": 30
+                        "destination": "xxx.xxx.x.x",
+                        "count": 10,
+                        "frequency": 10
                     },
                     "latency": {
                         "destination": "xxx.xxx.x.x",
