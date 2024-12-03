@@ -1,54 +1,69 @@
 package main
 
 import (
-	// "ccproj/utils"
-	// "fmt"
-	// "os"
-	//uh "ccproj/udp_handler"
+	"ccproj/server/db"
+	sAlertFlow "ccproj/server/serverAlertFlow"
+	sNetTask "ccproj/server/serverNetTask"
 	"ccproj/server/view"
-	//th "ccproj/tcp_handler"
-	//"fmt"
-	
+	"ccproj/utils"
+	"fmt"
+	"os"
+	"time"
 )
 
 func main() {
 
-	// address := "localhost:8080"
-	// udpAddress := "localhost:9090"
-	// // Check if the user provided a configuration file
-	// if len(os.Args) < 2 {
-	// 	fmt.Println("Usage: go run main.go <config.json>")
-	// 	return
-	// }
+	// Check if the user provided a configuration file
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <config.json>")
+		return
+	}
 
-	// configFile := os.Args[1]
+	serverIP, err := getLocalIP()
+    if err != nil {
+        fmt.Printf("Erro ao obter o IP local: %v\n", err)
+        return
+    }
 
-	// // Parsing the configuration file
-	// if !gUtils.IsJSONFile(configFile) {
-	// 	fmt.Printf("Error: Configuration file must be a .json\n")
-	// 	return
-	// }
+	udpServerAddr := fmt.Sprintf("%s:9090", serverIP)
+    tcpServerAddr := fmt.Sprintf("%s:8080", serverIP)
 
-	// task, err := ParseTasks(configFile)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	configFile := os.Args[1]
 
-	// agents := make(map[string]uh.AgentRegistration)
+	// Parsing the configuration file
+	if !gUtils.IsJSONFile(configFile) {
+		fmt.Printf("Error: Configuration file must be a .json\n")
+		return
+	}
 
-	// PrintTasks(task)
+	tasks, err := ParseTasks(configFile)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// // Listener UDP, para resgistos, metricas, confirmacoes
-	// go sNetTask.HandleUDP(udpAddress, agents)
-	// 	// ficar a espera de registos, enviar as tasks para os agents e esperar metricas
+	logs := db.NewLogManager()
+	agents := make(map[string]Agent)
+	
+	sendChannel := make(chan []string)
+	defer close(sendChannel)
 
-	// // Listener TCP para alertas
-	// go tcp_handler.ListenTCP(address)
+	go logs.PersistLogs()
+
+	// Listener UDP, para resgistos, metricas, confirmacoes
+	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel)
+
+	// Listener TCP para alertas
+	go sAlertFlow.HandleTCP(tcpServerAddr, agents, logs)
+
+	// timer para enviar tarefas
+
+	time.Sleep(30 * time.Second)
+	fmt.Println("Sending tasks to agents...\n")
+	SendTask(agents, tasks, sendChannel)
+	fmt.Printf("Tasks sent to agents...\n")
 
 	view.StartGUI()
-
-
 
 }
 

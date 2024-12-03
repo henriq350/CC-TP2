@@ -102,6 +102,7 @@ func NewLogManager() *LogManager {
     return &LogManager{
         ClientBuffers: make(map[string][]string),
         GeneralBuffer: []string{},
+        Mutex:         sync.Mutex{},
     }
 }
 

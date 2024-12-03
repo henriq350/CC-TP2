@@ -3,12 +3,12 @@ package sAlertFlow
 import (
 	"ccproj/server/db"
 	th "ccproj/tcp_handler"
-	uh "ccproj/udp_handler"
+	"ccproj/server"
 	"fmt"
 	"time"
 )
 
-func HandleTCP(tcpAddr string,  agents map[string]uh.AgentRegistration, lm *db.LogManager) {
+func HandleTCP(tcpAddr string,  agents map[string]main.Agent, lm *db.LogManager) {
 	
 	receiveChannel := make(chan th.AlertMessage)
 

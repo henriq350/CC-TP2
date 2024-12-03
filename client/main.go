@@ -34,9 +34,10 @@ func main() {
 	Tasks := make(map[string]nmsClient.Task)
 	taskChannel := make(chan []string)
 
-	// TODO - Caso n esteja no udphandler, adicionar o register
-
 	go cNetTask.HandleUDP(udpServerAddr, taskChannel)
+
+	register := []string{clientID, "","Register","","",clientIP,""}
+	taskChannel <- register
 
 	go func() {
 		for task := range taskChannel {
@@ -53,7 +54,8 @@ func main() {
     sig := <-sigChan
     fmt.Printf("Signal recevied %s. Sending terminate packet...\n", sig)
 
-    // TODO - Send terminate packet
+    terminate := []string{clientID, "","Terminate","","",clientIP,""}
+	taskChannel <- terminate
 
     close(taskChannel)
 }
