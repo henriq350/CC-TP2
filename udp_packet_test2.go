@@ -1,7 +1,7 @@
 package main
 
 import (
-	"CC-TP2/udp_handler"
+	"ccproj/udp_handler"
 	"fmt"
 	"net"
 	"os"

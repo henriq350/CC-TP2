@@ -1,5 +1,5 @@
 	package main
-	import("CC-TP2/udp_handler");
+	import("ccproj/udp_handler");
 
 	func main() {
 		ch := make(chan []string)
