@@ -4,17 +4,13 @@ import (
 	"ccproj/server/config"
 	sutils "ccproj/server/utils"
 	"encoding/json"
+    "ccproj/server/types"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"strconv"
 )
-
-type Agent struct {
-	AgentID string
-	AgentIP string
-}
 
 
 func ParseTasks(filename string) ([]config.Task, error) {
@@ -46,20 +42,10 @@ func ParseTasks(filename string) ([]config.Task, error) {
 }
 
 
-// Add agent
-func AddAgent(agent Agent, agents map[string]Agent) {
-	agents[agent.AgentID] = agent
-}
-
-// Remove agent
-func RemoveAgent(agent Agent, agents map[string]Agent) {
-	delete(agents, agent.AgentID)
-}
-
 // TODO
-func SendTask(agents map[string]Agent , tasks []config.Task, sendChannel chan <- []string) {
+func SendTask(agents map[string]types.Agent , tasks []config.Task, sendChannel chan <- []string) {
 
-    agentList := make([]Agent, 0, len(agents))
+    agentList := make([]types.Agent, 0, len(agents))
     for _, agent := range agents {
         agentList = append(agentList, agent)
     }

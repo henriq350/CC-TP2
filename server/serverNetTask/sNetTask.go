@@ -2,19 +2,28 @@ package sNetTask
 
 import (
 	"ccproj/server/db"
-	m "ccproj/server/main"
 	uh "ccproj/udp_handler"
+	"ccproj/server/types"
 	"fmt"
 	"sync"
 	"time"
+	"net"
+	"os"
 )
 
 var agentMutex sync.Mutex
 
-func HandleUDP(udpAddr string, agents map[string]m.Agent, lm *db.LogManager, receiveChannel chan []string) {
+func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager, receiveChannel chan []string) {
 
-	// Listener de UDP
-	go uh.ListenUDP(udpAddr, receiveChannel)
+	udp_address,error := net.ResolveUDPAddr("udp","127.0.0.1:8008")
+		if error != nil {
+			fmt.Println(error)
+			os.Exit(1)
+		}
+
+	connection_, error := net.ListenUDP("udp", udp_address)
+	go uh.ListenUdp("","",connection_ ,receiveChannel)
+	go uh.ListenServer(receiveChannel,connection_)
 
 	//Receber mensagem e decidir o q fazer com ela
 	for packet := range receiveChannel {
@@ -27,18 +36,18 @@ func HandleUDP(udpAddr string, agents map[string]m.Agent, lm *db.LogManager, rec
 // packet - "client_id" ,”task_id”  ,"tipo"    ,"metrica" ,"valor"  ,”client_ip”,"dest_ip"
 // packet -  packet[0] , packet[1] ,packet[2] ,packet[3] packet[4] ,packet[5]   ,packet[6]
 
-func handleUDPMessage(packet []string, agents map[string]m.Agent, lm *db.LogManager) {
+func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.LogManager) {
 
 	switch packet[2] {
 		case "Register":
 			
 			// Cria um agente a partir do pacote
-			agent := m.Agent{packet[0], packet[5]}
+			agent := types.Agent{packet[0], packet[5]}
 			currentTime := time.Now().Format("2024-11-14 15:04:05")
 
 			// Adiciona a lista de agentes
 			agentMutex.Lock()
-			m.AddAgent(agent, agents)
+			types.AddAgent(agent, agents)
 			agentMutex.Unlock()
 
 			// Adiciona Log
@@ -65,12 +74,12 @@ func handleUDPMessage(packet []string, agents map[string]m.Agent, lm *db.LogMana
 
 		case "Terminate":
 			
-			agent := m.Agent{packet[0], packet[5]}
+			agent := types.Agent{packet[0], packet[5]}
 			currentTime := time.Now().Format("2024-11-14 15:04:05")
 
 			
 			agentMutex.Lock()
-			m.RemoveAgent(agent, agents)
+			types.RemoveAgent(agent, agents)
 			agentMutex.Unlock()
 
 			// Escreve no log e remove o buffer do maps de logs

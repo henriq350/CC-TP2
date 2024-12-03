@@ -5,6 +5,7 @@ import (
 	sAlertFlow "ccproj/server/serverAlertFlow"
 	sNetTask "ccproj/server/serverNetTask"
 	"ccproj/server/view"
+	"ccproj/server/types"
 	"ccproj/utils"
 	"fmt"
 	"os"
@@ -43,7 +44,7 @@ func main() {
 	}
 
 	logs := db.NewLogManager()
-	agents := make(map[string]Agent)
+	agents := make(map[string]types.Agent)
 	
 	sendChannel := make(chan []string)
 	defer close(sendChannel)
