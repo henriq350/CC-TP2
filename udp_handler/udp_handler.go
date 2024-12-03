@@ -6,24 +6,211 @@ import (
 	"os"
 )
 
-var connection_states map[string]int = make(map[string]int)
-
 func SetConnState(conn string, state int){
 	connection_states[conn] = state
 }
 
+var connection_states map[string]int = make(map[string]int)
+// Map of connection ID to map of sequence numbers to packets
+var server_data_states map[string]map[int]Packet = make(map[string]map[int]Packet)
+// Map of connection ID to last sequence number
+var last_sequence_number map[string]uint32 = make(map[string]uint32)
 
-/* var connection_data map[string]bytes = make(map[string]bytes) 
- */
+func ListenServer(channel chan []string, con *net.UDPConn) {
+	for {
+		a := <-channel
+		if len(a) == 8 {
+			//taskId := a[0]
+			name := a[1]
+			frequency := a[2]
+			threshold := a[3]
+			client_ip := a[4]
+			dest_ip := a[5]
+
+			// Get local address details
+			localAddr := con.LocalAddr().(*net.UDPAddr)
+			localIP := localAddr.IP.String()
+			localPort := localAddr.Port
+
+			// Parse destination address for port
+			destAddr, err := net.ResolveUDPAddr("udp", dest_ip)
+			if err != nil {
+				fmt.Printf("Error resolving destination address: %v\n", err)
+				continue
+			}
+			destIP := destAddr.IP.String()
+			destPort := destAddr.Port
+
+			// Create connection state identifier with both IPs and ports
+			connstate := fmt.Sprintf("%s:%d:%s:%d", localIP, localPort, destIP, destPort)
+			var sequence uint32 
+			sequence = last_sequence_number[connstate]
+			state := connection_states[connstate]
+
+			send := getTaskPacket(client_ip, name, frequency, threshold, sequence)
+
+			if state == 3 || state == 4 {
+				sendUDPPacket(con, send, client_ip)
+				last_sequence_number[connstate]++
+				
+				if _, exists := server_data_states[connstate]; !exists {
+					server_data_states[connstate] = make(map[int]Packet)
+				}
+				server_data_states[connstate][int(sequence)] = *send
+				
+			} else { // assuming case 0
+				packet := &Packet{
+					Type:           RegisterPacket,
+					SequenceNumber: 1,
+					AckNumber:      send.SequenceNumber + 1,
+					Flags: Flags{
+						SYN: true,
+						ACK: false,
+						RET: false,
+					},
+					Data: AgentRegistration{
+						AgentID: "server-001",
+						IPv4:    net.ParseIP("127.0.0.1"),
+					},
+				}
+				last_sequence_number[connstate] = 1
+				connection_states[connstate] = 1
+				
+				if _, exists := server_data_states[connstate]; !exists {
+					server_data_states[connstate] = make(map[int]Packet)
+				}
+				server_data_states[connstate][1] = *packet
+				
+				sendUDPPacket(con, packet, client_ip)
+			}
+		}
+	}
+}
+
+func getTaskPacket(client_ip, metrica, frequencia, threshold string, sequence uint32) *Packet {
+	freq := 0
+	// Convert frequency string to int (add error handling as needed)
+	fmt.Sscanf(frequencia, "%d", &freq)
+
+	return &Packet{
+		Type:           TaskPacket,
+		SequenceNumber: sequence,
+		AckNumber:      1,
+		Flags: Flags{
+			SYN: false,
+			ACK: false,
+			RET: false,
+		},
+		Data: TaskRecord{
+			Name:           metrica,
+			Value:          "0",
+			ReportFreq:     uint32(freq),
+			CriticalValues: []string{threshold},
+		},
+	}
+}
+
+func sendUDPPacket(con *net.UDPConn, p *Packet, destination string) {
+	udpAddr, err := net.ResolveUDPAddr("udp", destination)
+	if err != nil {
+		fmt.Printf("Error resolving address: %v\n", err)
+		return
+	}
+
+	serialized, err := p.Serialize()
+	if err != nil {
+		fmt.Printf("Error serializing packet: %v\n", err)
+		return
+	}
+
+	_, err = con.WriteToUDP(serialized, udpAddr)
+	if err != nil {
+		fmt.Printf("Error sending UDP packet: %v\n", err)
+		return
+	}
+}
 
 
-func ListenServer(address string, channel chan [] string){
-	//on receive: (task, name, critical calues, frequency,ip)
+/*
+key1: connection (source_ip+sourceport+dest_ip+dest_port
+key2: sequence number
+var server_data_states map[map[Packet]int]string = make(map[map[Packet]int]string )
+
+key: connection 
+var last_sequence_number map[int]string = make(map[int]string)
+
+ 
+func ListenServer(channel chan [] string,con *net.UDPConn){
+	“taskId”,"name","frequencia","threshold",”client_ip”,"dest_ip",”duration”,”packet_count"
+	while (string []a <- channel)
+		if (a.length == 8)
+		//came from server
+			string connstate = con.sourceaddr + dest_ip
+			int sequence = last_sequence_number[connstate]
+			state = connection_states[connstate]
+			Packet send = getTaskPacket(a[4],a[1],a[3],sequence)
+			if (connstate == 3 || connstate == 4){
+				sendUDPPacket(con,send,client_ip)
+				last_sequence_number[connstate]++
+				server_data_states[connstate][sequence] = send
+			}
+			else { //assuming case 0
+				packet := &Packet{
+						Type:           RegisterPacket,  
+						SequenceNumber: 1,              
+						AckNumber:      packet.SequenceNumber + 1,
+						Flags: Flags{
+							SYN: true,
+							ACK: false,
+							RET: false,
+						},
+						Data: AgentRegistration{      // Add this
+							AgentID: "server-001",    // Use appropriate ID
+							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
+						},
+					}
+				last_sequence_number[connstate] = 1
+				connection_state[connstate] = 1;
+				server_data_states[connstate][1] = packet
+				sendUDPPacket(con,packet,client_ip)
+			}
+
+
+	//if ()
 	//connection_data[address+ip] = data;
 	//connection_state[address+ip] = 1;
 	//send packet to receiver with SYN
 }
+*/
 
+
+/*func getTaskPacket(string client_ip,string metrica,string frequencia,string threshold,int sequence) (Packet *p){
+	return &Packet{
+						Type:           TaskPacket,  
+						SequenceNumber: sequence,              
+						AckNumber:      1,
+						Flags: Flags{
+							SYN: false,
+							ACK: false,
+							RET: false,
+						},
+						Data: TaskRecord {
+							Name:metrica,
+							Value:0,
+							ReportFreq:int(frequencia)
+							CriticalValues:[threshold]
+						}
+}*/
+
+
+/*
+func sendUDPPacket(con *net.UDPConn, Packet *p, string destination){
+	udp_address,error := net.ResolveUDPAddr("udp",destination)
+	serialized, _ := p.Serialize()
+	print("serialized.length\n")
+	con.WriteToUDP(serialized, addr)
+}
+*/
 
 
 	
@@ -190,10 +377,10 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 				// if client
 					//add task 
 			//// Finalize connection //////////////////////////////////////////////////////
-			//sender sends FIN
-			//receiver receives FIN, sends FIN+ACK
-			case 5: //sender sent FIN, receives FIN + ACK, sends ACK
-			case 6: //receiver sent FIN + ACK, receives ACK   				
+			// sends FIN
+			// receives FIN, sends FIN+ACK
+			case 5: // sent FIN, receives FIN + ACK, sends ACK
+			case 6: // sent FIN + ACK, receives ACK   				
 }
 			
 }
