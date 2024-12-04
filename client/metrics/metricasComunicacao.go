@@ -10,7 +10,7 @@ import (
 )
 
 // Função para medir latência e perda de pacotes com `ping`
-func pingMetrics(target string, count int) (float64, float64, error) {
+func PingMetrics(target string, count int) (float64, float64, error) {
 	cmd := exec.Command("ping", "-c", strconv.Itoa(count), target)
 
 	var out bytes.Buffer
@@ -55,7 +55,7 @@ func pingMetrics(target string, count int) (float64, float64, error) {
 }
 
 // Função para medir largura de banda e jitter com `iperf3`
-func iperfMetrics(target string, duration int) (float64, float64, error) {
+func IperfMetrics(target string, duration int) (float64, float64, error) {
     cmd := exec.Command("iperf3", "-c", target, "-u", "-t", strconv.Itoa(duration))
 
     var out bytes.Buffer

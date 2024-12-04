@@ -30,6 +30,13 @@ func AddTask(task []string, tasks map[string]Task) {
 //  task[0]   task[1]       task[2]    task[3]    task[4]     task[5]     
 
 func ParseTask(task []string) Task {
+
+    if len(task) < 6 {
+        fmt.Println("Slice length is less than 6")
+        fmt.Println("Task slice:", task)
+        return Task{}
+    }
+
     nTask := 1 // Change if we get task with multiple metrics
     metricType := []string{task[0]}
     frequency, _ := strconv.Atoi(task[1])
@@ -156,7 +163,7 @@ func monitorBandwidth(frequency int, ipDest string, duration int, send chan <- [
     for {
         select {
         case <-ticker.C:
-            bandwidth, _, err := metrics.iperfMetrics(ipDest, duration)
+            bandwidth, _, err := metrics.IperfMetrics(ipDest, duration)
             if err != nil {
                 fmt.Println("Error getting bandwidth:", err)
                 continue
@@ -176,7 +183,7 @@ func monitorLatency(frequency int, ipDest string, count int, send chan <- []stri
     for {
         select {
         case <-ticker.C:
-            latency, _, err := metrics.pingMetrics(ipDest, count)
+            latency, _, err := metrics.PingMetrics(ipDest, count)
             if err != nil {
                 fmt.Println("Error getting latency:", err)
                 continue
@@ -196,7 +203,7 @@ func monitorPacketLoss(frequency int, threshold float32, ipDest string, count in
     for {
         select {
         case <-ticker.C:
-            _, packetLoss, err := metrics.pingMetrics(ipDest, count)
+            _, packetLoss, err := metrics.PingMetrics(ipDest, count)
             if err != nil {
                 fmt.Println("Error getting packet loss:", err)
                 continue
@@ -217,7 +224,7 @@ func monitorJitter(frequency int, threshold float32, ipDest string, duration int
     for {
         select {
         case <-ticker.C:
-            _, jitter, err := metrics.iperfMetrics(ipDest, duration)
+            _, jitter, err := metrics.IperfMetrics(ipDest, duration)
             if err != nil {
                 fmt.Println("Error getting jitter:", err)
                 continue

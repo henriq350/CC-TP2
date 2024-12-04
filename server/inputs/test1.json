@@ -8,41 +8,41 @@
                 "device_metrics": {
                     "cpu_usage": true,
                     "ram_usage": false,
-                    "interface_stats": ["eth0", "eth1", "eth2"] //ips
+                    "interface_stats": []
                 },
                 "link_metrics": {
                     "bandwidth": {
-                        "tool": "iperf",
-                        "client": true,
-                        "server_addr": "xxx.xxx.x.x",
-                        "duration": 10,
-                        "transport": "tcp",
-                        "frequency": 30
+                        "tool": "",
+                        "client": false,
+                        "server_addr": "",
+                        "duration": 0,
+                        "transport": "",
+                        "frequency": 0
                     },
                     "jitter": {
-                        "tool": "iperf",
-                        "client": true,
-                        "server_addr": "xxx.xxx.x.x",
-                        "duration": 10,
-                        "transport": "tcp",
-                        "frequency": 30
+                        "tool": "",
+                        "client": false,
+                        "server_addr": "",
+                        "duration": 0,
+                        "transport": "",
+                        "frequency": 0
                     },
                     "packet_loss": {
-                        "destination": "xxx.xxx.x.x",
-                        "count": 10,
-                        "frequency": 10
+                        "destination": "",
+                        "count": 0,
+                        "frequency": 0
                     },
                     "latency": {
-                        "destination": "xxx.xxx.x.x",
-                        "count": 5,
-                        "frequency": 60
+                        "destination": "",
+                        "count": 0,
+                        "frequency": 0
                     },
                     "alertflow_conditions": {
-                        "cpu_usage": 80,
-                        "ram_usage": 90,
-                        "interface_stats": 2000,
-                        "packet_loss": 5,
-                        "jitter": 100
+                        "cpu_usage": 60,
+                        "ram_usage": 0,
+                        "interface_stats": 0,
+                        "packet_loss": 0,
+                        "jitter": 0
                     }
                 }
             }

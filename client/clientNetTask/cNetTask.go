@@ -3,12 +3,27 @@ package cNetTask
 import (
 	uh "ccproj/udp_handler"
 	"fmt"
+	"net"
+	"os"
 )
 
 func HandleUDP(udpAddr string, taskChannel chan []string) {
 
 	// listner udp
-	go uh.ListenUDP(udpAddr, taskChannel)
+	udp_address, error := net.ResolveUDPAddr("udp", udpAddr)
+	if error != nil {
+		fmt.Println(error)
+		os.Exit(1)
+	}
+
+	connection, error := net.ListenUDP("udp", udp_address)
+	if error != nil {
+		fmt.Println(error)
+		os.Exit(1)
+	}
+
+    go uh.ListenUdp("","",connection ,taskChannel)
+    go uh.ListenClient(taskChannel, connection)
 
 	for packet := range taskChannel{
 		go handleUDPMessage(packet, taskChannel)

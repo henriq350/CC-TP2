@@ -3,13 +3,11 @@ package metrics
 import (
 	"fmt"
 	"io/ioutil"
-	"net"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func sendCPUMetrics(cpu string, time string, device string) {}
 
 // Função para obter as estatísticas da CPU
 func getCPUStats() (float64, float64, error) {
@@ -42,7 +40,7 @@ func getCPUStats() (float64, float64, error) {
 }
 
 // Função para calcular a utilização da CPU
-func getCPUUsage() (float64, error) {
+func GetCPUUsage() (float64, error) {
 	total1, idle1, err := getCPUStats()
 	if err != nil {
 		return 0, err
@@ -64,7 +62,7 @@ func getCPUUsage() (float64, error) {
 }
 
 // Função para obter a utilização de RAM
-func getRAMUsage() (float64, error) {
+func GetRAMUsage() (float64, error) {
 	data, err := ioutil.ReadFile("/proc/meminfo")
 	if err != nil {
 		return 0, err
@@ -98,43 +96,16 @@ func getRAMUsage() (float64, error) {
 }
 
 // Função para listar nomes das interfaces de rede
-func getNetworkInterfaces() ([]string, error) {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		return nil, err
-	}
+// func getNetworkInterfaces() ([]string, error) {
+// 	interfaces, err := net.Interfaces()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	var names []string
-	for _, iface := range interfaces {
-		names = append(names, iface.Name)
-	}
-	return names, nil
-}
+// 	var names []string
+// 	for _, iface := range interfaces {
+// 		names = append(names, iface.Name)
+// 	}
+// 	return names, nil
+// }
 
-func main() {
-	for {
-		cpuUsage, err := getCPUUsage()
-		if err != nil {
-			fmt.Println("Erro ao obter uso da CPU:", err)
-			return
-		}
-
-		ramUsage, err := getRAMUsage()
-		if err != nil {
-			fmt.Println("Erro ao obter uso da RAM:", err)
-			return
-		}
-
-		networkInterfaces, err := getNetworkInterfaces()
-		if err != nil {
-			fmt.Println("Erro ao obter interfaces de rede:", err)
-			return
-		}
-
-		fmt.Printf("CPU Usage: %.2f%%\n", cpuUsage)
-		fmt.Printf("RAM Usage: %.2f%%\n", ramUsage)
-		fmt.Println("Network Interfaces:", networkInterfaces)
-
-		time.Sleep(1 * time.Second) // Aguarda um segundo antes da próxima leitura
-	}
-}

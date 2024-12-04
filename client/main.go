@@ -14,19 +14,16 @@ import (
 func main() {
 
 	//Get server IP
-	if len(os.Args) < 4 {
-        fmt.Println("Insert server IP with the following ports UDP and TCP\nExample: go run main.go 10.0.0.1 9090 8080\n")
+	if len(os.Args) < 2 {
+        fmt.Println("Insert server IP\nExample: go run main.go 10.0.0.1\n")
         os.Exit(1)
     }
 
     serverIP := os.Args[1]
     validateServerIP(serverIP)
 
-    udpPort := validatePort(os.Args[2])
-    tcpPort := validatePort(os.Args[3])
-
-    udpServerAddr := fmt.Sprintf("%s:%d", serverIP, udpPort)
-    tcpServerAddr := fmt.Sprintf("%s:%d", serverIP, tcpPort)
+    udpServerAddr := fmt.Sprintf("%s:9090", serverIP)
+    tcpServerAddr := fmt.Sprintf("%s:8080", serverIP)
 
 	clientip, err := getLocalIP()
     if err != nil {
@@ -34,14 +31,15 @@ func main() {
         return
     }
 
-	clientIP := fmt.Sprintf("%s:8080", clientip)
+	clientIP := fmt.Sprintf("%s:9090", clientip)
 
 	clientID := getClientID()
-	fmt.Print("%s Running... \n", clientID)
+	fmt.Printf("%s Running... \n", clientID)
 
 	Tasks := make(map[string]tasks.Task)
 	taskChannel := make(chan []string)
-
+	tasksReady := make(chan struct{})
+	
 	go cNetTask.HandleUDP(udpServerAddr, taskChannel)
 
 	register := []string{clientID, "","Register","","",clientIP,""}
@@ -49,10 +47,17 @@ func main() {
 
 	go func() {
 		for task := range taskChannel {
-			tasks.AddTask(task, Tasks)
-			taskID := task[1]
-			go tasks.ProcessTask(taskID, Tasks[taskID], clientID, tcpServerAddr, taskChannel)
-		}
+            if len(task) < 2 {
+                fmt.Println("Erro: Tamanho do slice task é menor que o esperado")
+                continue
+            }
+            if task[2] == "Task" { // Verifica se o pacote contém tarefas
+                tasks.AddTask(task, Tasks)
+                taskID := task[1]
+                go tasks.ProcessTask(taskID, Tasks[taskID], clientID, tcpServerAddr, taskChannel)
+                tasksReady <- struct{}{} // Sinaliza que as tarefas foram recebidas
+            }
+        }
 	}()
 	
 	sigChan := make(chan os.Signal, 1)

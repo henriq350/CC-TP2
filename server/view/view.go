@@ -1,6 +1,7 @@
 package view
 
 import (
+	"ccproj/server/types"
 	"ccproj/server/db"
 	"fmt"
 	"io/ioutil"
@@ -11,11 +12,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-var agents = map[string]string{
-	"Client1": "192.168.1.10",
-	"Client2": "192.168.1.20",
-	"Client3": "192.168.1.30",
-}
 
 var app *tview.Application
 
@@ -25,10 +21,14 @@ var mM *tview.List
 var menuStack []*tview.List
 var logManager = db.NewLogManager()
 
+var agents map[string]types.Agent
+
 // StartGUI inicia a interface gráfica no terminal
-func StartGUI() {
+func StartGUI(agentMap map[string]types.Agent) {
+	
+	agents = agentMap
+
 	app = tview.NewApplication()
-	//agents = make(map[string]nmsServer.AgentRegistration)
 	logView = tview.NewTextView().SetDynamicColors(true).SetScrollable(true)
 
 	mainMenu := tview.NewList().
@@ -61,11 +61,10 @@ func showClientsMenu() {
 	//     })
 	// }
 
-	for name, ip := range agents {
-		clientName := name
-		clientIP := ip
-		clientsMenu.AddItem(fmt.Sprintf("%s - %s", clientName, clientIP), "", 0, func() {
-			showClientFiles(clientName)
+	for id, agent := range agents {
+		agentID := id
+		clientsMenu.AddItem(fmt.Sprintf("%s - %s", agent.AgentID, agent.AgentIP), "", 0, func() {
+			showClientFiles(agentID)
 		})
 	}
 

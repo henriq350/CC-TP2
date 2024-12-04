@@ -16,15 +16,17 @@ func main() {
 
 	// Check if the user provided a configuration file
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <config.json>")
+		fmt.Println("Usage: go run main.go nmsServer.go <config.json>")
 		return
 	}
 
-	serverIP, err := getLocalIP()
-    if err != nil {
-        fmt.Printf("Erro ao obter o IP local: %v\n", err)
-        return
-    }
+	// serverIP, err := getLocalIP()
+    // if err != nil {
+    //     fmt.Printf("Erro ao obter o IP local: %v\n", err)
+    //     return
+    // }
+
+	serverIP := "127.0.0.1"
 
 	udpServerAddr := fmt.Sprintf("%s:9090", serverIP)
     tcpServerAddr := fmt.Sprintf("%s:8080", serverIP)
@@ -64,14 +66,15 @@ func main() {
 
 	// timer para enviar tarefas
 
-	time.Sleep(5* time.Second)
+	time.Sleep(7* time.Second)
+
 	fmt.Println("Sending tasks to agents...\n")
 	SendTask(agents, tasks, sendChannel)
 	fmt.Printf("Tasks sent to agents...\n")
 
 	fmt.Println("Starting GUI...")
-	time.Sleep(5 * time.Second)
-	view.StartGUI()
+	time.Sleep(2 * time.Second)
+	view.StartGUI(agents)
 
 }
 
