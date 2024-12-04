@@ -190,7 +190,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						},
 						Data: AgentRegistration{      // Add this
 							AgentID: "server-001",    // Use appropriate ID
-							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
+							IPv4:    "127.0.0.1", // Use appropriate IP
 						},
 					}
 					 /* print("PRINT")
@@ -222,7 +222,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						},
 						Data: AgentRegistration{      // Add this
 							AgentID: "server-001",    // Use appropriate ID
-							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
+							IPv4:    "127.0.0.1", // Use appropriate IP
 						},
 					}
 					sendUDPPacket_(connection,response,addr)
@@ -333,7 +333,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						},
 						Data: AgentRegistration{      // Add this
 							AgentID: "server-001",    // Use appropriate ID
-							IPv4:    net.ParseIP("127.0.0.1"), // Use appropriate IP
+							IPv4:    "127.0.0.1", // Use appropriate IP
 						},
 					}
 					sendUDPPacket_(connection,response,addr)

@@ -12,6 +12,7 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 	"client_id",”task_id”,“tipo”,"metrica","valor",”client_ip”,"dest_ip" */
 	for {
 		a := <-channel
+		print("cleint:received array\n")
 		if len(a) == 7 {
 			//client_id := a[0]
 			//task_id := a[1]
@@ -72,7 +73,7 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 					},
 					Data: AgentRegistration{
 						AgentID: "server-001",
-						IPv4:    net.ParseIP("127.0.0.1"),
+						IPv4:    "127.0.0.1",
 					},
 				}
 				last_sequence_number[connstate] = 1
@@ -115,11 +116,10 @@ func getReportPacket(client_ip string , name string , value string ,sequence uin
 }
 //Register Packet
 func getRegisterPacket(client_ip string , name string , sequence uint32) *Packet {
-	host, _, _ := net.SplitHostPort(client_ip)
-	ip := net.ParseIP(host)
+	
 	tr := AgentRegistration{
 		AgentID:           name,
-		IPv4:          ip,
+		IPv4:          client_ip,
 	}
 	return &Packet{
 		Type:           ReportPacket,
