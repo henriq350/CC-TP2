@@ -25,14 +25,6 @@ func HandleUDP(udpAddr string, taskChannel chan []string) {
     go uh.ListenUdp("","",connection ,taskChannel)
     go uh.ListenClient(taskChannel, connection)
 
-	for packet := range taskChannel{
-		go handleUDPMessage(packet, taskChannel)
-	}
-
+	select {}
 }
 
-func handleUDPMessage(packet []string, taskChannel chan <- []string) {
-
-	fmt.Println("Received packet: ", packet)
-	taskChannel <- packet
-}

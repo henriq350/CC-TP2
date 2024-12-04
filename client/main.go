@@ -22,7 +22,7 @@ func main() {
     serverIP := os.Args[1]
     validateServerIP(serverIP)
 
-    //udpServerAddr := fmt.Sprintf("%s:9090", serverIP)
+    udpServerAddr := fmt.Sprintf("%s:9090", serverIP)
     tcpServerAddr := fmt.Sprintf("%s:8080", serverIP)
 
 	clientip, err := getLocalIP()
@@ -42,7 +42,7 @@ func main() {
 	
 	go cNetTask.HandleUDP(clientIP, taskChannel)
 
-	register := []string{clientID, "","Register","","",clientIP,""}
+	register := []string{clientID, "","Register","","",clientIP,udpServerAddr}
 	taskChannel <- register
 
 	go func() {

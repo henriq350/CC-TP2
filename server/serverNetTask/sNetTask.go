@@ -22,6 +22,7 @@ func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager,
 		}
 
 	connection_, error := net.ListenUDP("udp", udp_address)
+	
 	go uh.ListenUdp("","",connection_ ,receiveChannel)
 	go uh.ListenServer(receiveChannel,connection_)
 
