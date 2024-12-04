@@ -298,11 +298,20 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						a[6] = "10"
 						a[7] = "10"
 					}
+
 					if(packet.Type == ReportPacket){
-						reports := packet.Data.([]ReportRecord)
-						length := len(reports)
-						a = make([]string, length,length)
-			
+/* 						"client_id",”task_id”,"tipo","metrica","valor",”client_ip”,"dest_ip"
+ */						reports := packet.Data.([]ReportRecord)
+						r := reports[0]
+						a = make([]string,7,7)
+						a[0] = "0"
+						a[1] = "1"
+						a[2] = "Report"
+						a[3] = r.Name
+						a[4] = r.Value
+						a[5] = "client_ip"
+						a[6] = "dest_ip"
+							
 						// Process each report if needed~
 					/* 	print("\nReaceived packet w/ data: Length of ")
 						print(length) */

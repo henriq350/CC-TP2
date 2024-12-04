@@ -131,7 +131,7 @@ func main() {
 			
 		}() */
 	go udp_handler.ListenUdp("client","",listenConn,ch);
-	go udp_handler.ListenServer(ch,listenConn);
+	go udp_handler.ListenClient(ch,listenConn);
 
 	var a [] string = make([]string,8,8)/* 
 	“taskId”,"name","frequencia","threshold",”client_ip”,"dest_ip",”duration”,”packet_count” */
