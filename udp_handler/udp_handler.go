@@ -164,6 +164,8 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
         destPort := dest_address.Port
         connID := fmt.Sprintf("%s:%d:%s:%d", sourceIP, sourcePort, destIP, destPort)
 		destination_ipport := fmt.Sprintf("%s:%d",destIP,destPort)
+		//source_ipport := fmt.Sprintf("%s:%d",sourceIP,sourcePort)
+
 		print("Connection ID:\n")
 		print(connID)
 
@@ -270,33 +272,35 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 				print(packet.Type.String())
 				sequence := packet.SequenceNumber;
 				var a [] string
+				//////////////////////////////////////////////CLIENT //////////////////////////////////////////////////
 				 if (packet.Type == TaskPacket){
 /* 					“clientId”,“taskId”,"name","frequencia","threshold","dest_ip",”duration”,”packet_count”
  */
 					a = make([] string, 8,8)
-					a[0] = "0"
-					a[1] = "1"
-					 r := packet.Data.([]TaskRecord)[0]
+					r := packet.Data.([]TaskRecord)[0]
+					a[0] = r.ClientID
+					a[1] = r.TaskID
 					a[2] = r.Name
 					a[3] = fmt.Sprint(r.ReportFreq)
 					a[4] = r.CriticalValues[0]
-					a[5] = destination_ipport 
-					a[6] = "10"
-					a[7] = "10"
+					a[5] = r.DestinationIp
+					a[6] = fmt.Sprint(r.Duration)    
+					a[7] = fmt.Sprint(r.PacketCount)
 				} else {
 /* 					"client_id",”task_id”,"tipo","metrica","valor",”client_ip”,"dest_ip"				
  */
+ 				//////////////////////////////////////////////SERVER //////////////////////////////////////////////////
+
 					if(packet.Type == RegisterPacket){
 						a = make([]string,7,7)
-						a[0] = "0"
-						a[1] = "1"
-						r := packet.Data.(TaskRecord)
-						a[2] = r.Name
-						a[3] = fmt.Sprint(r.ReportFreq)
-						a[4] = r.CriticalValues[0]
-						a[5] = destination_ipport 
-						a[6] = "10"
-						a[7] = "10"
+						r := packet.Data.([]AgentRegistration)[0]
+						a[0] = ""
+						a[1] = ""
+						a[2] = "Register"
+						a[3] = ""
+						a[4] = ""
+						a[5] = r.IPv4 
+						a[6] = ""
 					}
 
 					if(packet.Type == ReportPacket){
@@ -304,22 +308,13 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
  */						reports := packet.Data.([]ReportRecord)
 						r := reports[0]
 						a = make([]string,7,7)
-						a[0] = "0"
-						a[1] = "1"
+						a[0] = r.ClientID
+						a[1] = r.TaskID
 						a[2] = "Report"
 						a[3] = r.Name
 						a[4] = r.Value
-						a[5] = "client_ip"
-						a[6] = "dest_ip"
-							
-						// Process each report if needed~
-					/* 	print("\nReaceived packet w/ data: Length of ")
-						print(length) */
-						for i, report := range reports {
-							// Example: convert each report to string or process it
-							a[i] = fmt.Sprintf("Report %d: %v", i, report)
-							//print(a[i])
-						}
+						a[5] = destination_ipport
+						a[6] = r.DestinationIp
 					}
 				}
 					response := &Packet{

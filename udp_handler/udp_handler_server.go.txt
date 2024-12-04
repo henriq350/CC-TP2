@@ -3,48 +3,43 @@ package udp_handler
 import (
 	"fmt"
 	"net"
-	//"os"
-	//"time"
+	"strconv"
 )
-
 
 func ListenServer(channel chan []string, con *net.UDPConn) {
 	for {
+		// taskId, name, frequency, threshold, client_id, dest_ip, duration, packet_count
+		//“taskId”,"name","frequencia","threshold",”client_ip”,"dest_ip",”duration”,”packet_count”
 		a := <-channel
 		if len(a) == 8 {
-			//taskId := a[0]
+			taskID := a[0]
 			name := a[1]
 			frequency := a[2]
 			threshold := a[3]
-			client_ip := a[4]
-			//dest_ip := a[5]
+			clientIp := a[4]
+			destIP := a[5]
+			duration := a[6]
+			packetCount := a[7]
 
-			// Get local address details
 			localAddr := con.LocalAddr().(*net.UDPAddr)
 			localIP := localAddr.IP.String()
 			localPort := localAddr.Port
 
-			// Parse destination address for port
-			destAddr, err := net.ResolveUDPAddr("udp", client_ip)
+			destAddr, err := net.ResolveUDPAddr("udp", clientIp)
 			if err != nil {
 				fmt.Printf("Error resolving destination address: %v\n", err)
-				print(client_ip)
-				print("\n")
+				fmt.Println(clientIp)
 				continue
 			}
-			destIP := destAddr.IP.String()
-			destPort := destAddr.Port
 
-			// Create connection state identifier with both IPs and ports
-			connstate := fmt.Sprintf("%s:%d:%s:%d", localIP, localPort, destIP, destPort)
-			var sequence uint32 
-			sequence = last_sequence_number[connstate]
+			connstate := fmt.Sprintf("%s:%d:%s:%d", localIP, localPort, destAddr.IP.String(), destAddr.Port)
+			sequence := last_sequence_number[connstate]
 			state := connection_states[connstate]
 
-			send := getTaskPacket(client_ip, name, frequency, threshold, sequence)
+			send := getTaskPacket(clientID, taskID, name, frequency, threshold, duration, packetCount, sequence)
 
 			if state == 3 || state == 4 {
-				sendUDPPacket(con, send, client_ip)
+				sendUDPPacket(con, send, clientIp)
 				last_sequence_number[connstate]++
 				
 				if _, exists := server_data_states[connstate]; !exists {
@@ -52,7 +47,7 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 				}
 				server_data_states[connstate][int(sequence)] = *send
 				
-			} else { // assuming case 0
+			} else {
 				packet := &Packet{
 					Type:           RegisterPacket,
 					SequenceNumber: 1,
@@ -63,8 +58,9 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 						RET: false,
 					},
 					Data: AgentRegistration{
-						AgentID: "server-001",
-						IPv4:    "127.0.0.1",
+						AgentID:  "server-001",
+						IPv4:     "127.0.0.1",
+						ClientID: clientIp,
 					},
 				}
 				last_sequence_number[connstate] = 1
@@ -74,26 +70,33 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 					server_data_states[connstate] = make(map[int]Packet)
 				}
 				server_data_states[connstate][1] = *packet
-
-				//update seq 4 with packet to send
 				server_data_states[connstate][4] = *send
 				
-				sendUDPPacket(con, packet, client_ip)
+				sendUDPPacket(con, packet, clientIp)
 			}
 		}
 	}
 }
 
-func getTaskPacket(client_ip, metrica, frequencia, threshold string, sequence uint32) *Packet {
-	freq := 0
-	// Convert frequency string to int (add error handling as needed)
-	fmt.Sscanf(frequencia, "%d", &freq)
+func getTaskPacket(clientID, taskID, name, frequency, threshold, duration, packetCount string, sequence uint32) *Packet {
+	freq, _ := strconv.ParseUint(frequency, 10, 32)
+	dur, _ := strconv.ParseUint(duration, 10, 32)
+	pCount, _ := strconv.ParseUint(packetCount, 10, 32)
+	thresh, _ := strconv.ParseFloat(threshold, 64)
+
 	tr := TaskRecord{
-		Name:           metrica,
+		TaskID:         taskID,
+		Name:           name,
 		Value:          "0",
+		Threshold:      thresh,
+		Duration:       uint32(dur),
+		PacketCount:    uint32(pCount),
+		Frequency:      uint32(freq),
 		ReportFreq:     uint32(freq),
 		CriticalValues: []string{threshold},
+		ClientID:       clientID,
 	}
+
 	return &Packet{
 		Type:           TaskPacket,
 		SequenceNumber: sequence,
