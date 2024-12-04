@@ -15,7 +15,7 @@ var agentMutex sync.Mutex
 
 func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager, receiveChannel chan []string) {
 
-	udp_address,error := net.ResolveUDPAddr("udp","127.0.0.1:8008")
+	udp_address,error := net.ResolveUDPAddr("udp",udpAddr)
 		if error != nil {
 			fmt.Println(error)
 			os.Exit(1)

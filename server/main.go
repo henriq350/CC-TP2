@@ -20,13 +20,11 @@ func main() {
 		return
 	}
 
-	// serverIP, err := getLocalIP()
-    // if err != nil {
-    //     fmt.Printf("Erro ao obter o IP local: %v\n", err)
-    //     return
-    // }
-
-	serverIP := "127.0.0.1"
+	serverIP, err := getLocalIP()
+    if err != nil {
+        fmt.Printf("Erro ao obter o IP local: %v\n", err)
+        return
+    }
 
 	udpServerAddr := fmt.Sprintf("%s:9090", serverIP)
     tcpServerAddr := fmt.Sprintf("%s:8080", serverIP)
