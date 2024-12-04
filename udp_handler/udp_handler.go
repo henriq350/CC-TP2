@@ -110,9 +110,9 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 	var connection *net.UDPConn
 	var dest_address *net.UDPAddr
 	var source_address *net.UDPAddr
-	var a [] string
-	a = make([]string,3,3)
-	channel <- a
+	//var a [] string
+	/* a = make([]string,3,3)
+	channel <- a */
 	if (address != "" ){
 		udp_address,error := net.ResolveUDPAddr("udp",address)
 		dest_address = udp_address

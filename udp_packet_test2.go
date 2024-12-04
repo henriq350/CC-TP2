@@ -41,17 +41,18 @@ func main() {
 	go udp_handler.ListenUdp("client","",listenConn,ch);
 	go udp_handler.ListenClient(ch,listenConn);
 
-	var a [] string = make([]string,8,8)/* 
-	“taskId”,"name","frequencia","threshold",”client_ip”,"dest_ip",”duration”,”packet_count” */
-	a = make([] string, 8,8)
+	var a [] string = make([]string,7,7)/* 
+	"client_id",”task_id”,“tipo”,"metrica","valor",”client_ip”,"dest_ip" */
+	a = make([] string, 7,7)
 	a[0] = "0"
 	a[1] = "1"
-	a[2] = "CPU"
-	a[3] = "30"
-	a[4] = "127.0.0.1:8008"
-	a[5] = "127.0.0.1:8007" 
-	a[6] = "10"
-	a[7] = "10"
+	a[2] = "Report"
+	a[3] = "CPU"
+	a[4] = "30"
+	a[5] = "127.0.0.1:54310" 
+	a[6] = "127.0.0.1:8008"
+	time.Sleep(1 * time.Second)
+
 	ch <- a
 	print("sent to channel")
 
@@ -88,7 +89,6 @@ func main() {
 	select{}
 
 
-	 time.Sleep(1 * time.Second)
 /*
 	// Send task packet
 	fmt.Println("\nSending Task Packet...")
