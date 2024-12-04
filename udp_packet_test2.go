@@ -8,98 +8,6 @@ import (
 	"time"
 )
 
-func createRegistrationPacket() *udp_handler.Packet {
-	return &udp_handler.Packet{
-		Type:           udp_handler.RegisterPacket,
-		SequenceNumber: 1,
-		AckNumber:      0,
-		Flags: udp_handler.Flags{
-			SYN: true,
-			ACK: false,
-			RET: false,
-		},
-		Data: udp_handler.AgentRegistration{
-			AgentID: "agent-001",
-			IPv4:    net.ParseIP("192.168.1.100"),
-		},
-	}
-}
-
-func createTaskPacket() *udp_handler.Packet {
-	tasks := []udp_handler.TaskRecord{
-		{
-			Name:       "cpu_usage",
-			Value:      "monitor",
-			ReportFreq: 30,
-			CriticalValues: []string{
-				"80",  // CPU usage threshold
-				"90",  // Critical CPU threshold
-			},
-		},
-		{
-			Name:       "network_latency",
-			Value:      "ping 8.8.8.8",
-			ReportFreq: 60,
-			CriticalValues: []string{
-				"100", // Warning latency (ms)
-				"200", // Critical latency (ms)
-			},
-		},
-	}
-
-	return &udp_handler.Packet{
-		Type:           udp_handler.TaskPacket,
-		SequenceNumber: 2,
-		AckNumber:      0,
-		Flags: udp_handler.Flags{
-			SYN: false,
-			ACK: false,
-			RET: false,
-		},
-		Data: tasks,
-	}
-}
-
-func createReportPacket() *udp_handler.Packet {
-	reports := []udp_handler.ReportRecord{
-		{
-			Name:  "cpu_usage",
-			Value: "45.2",
-		},
-		{
-			Name:  "network_latency",
-			Value: "23.5",
-		},
-	}
-
-	return &udp_handler.Packet{
-		Type:           udp_handler.ReportPacket,
-		SequenceNumber: 3,
-		AckNumber:      0,
-		Flags: udp_handler.Flags{
-			SYN: true,
-			ACK: false,
-			RET: false,
-		},
-		Data: reports,
-	}
-}
-
-func sendPacket(conn *net.UDPConn, address *net.UDPAddr, packet *udp_handler.Packet) error {
-	serializedData, err := packet.Serialize()
-	if err != nil {
-		return fmt.Errorf("serialization error: %v", err)
-	}
-
-	_, err = conn.WriteToUDP(serializedData,address)
-	if err != nil {
-		return fmt.Errorf("send error: %v", err)
-	}
-
-	fmt.Printf("Sent packet of type %v with sequence number %d\n", packet.Type, packet.SequenceNumber)
-	return nil
-}
-
 func main() {
 	/* serverAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:8008")
 	if err != nil {
@@ -133,17 +41,18 @@ func main() {
 	go udp_handler.ListenUdp("client","",listenConn,ch);
 	go udp_handler.ListenClient(ch,listenConn);
 
-	var a [] string = make([]string,8,8)/* 
-	“taskId”,"name","frequencia","threshold",”client_ip”,"dest_ip",”duration”,”packet_count” */
-	a = make([] string, 8,8)
+	var a [] string = make([]string,7,7)/* 
+	"client_id",”task_id”,“tipo”,"metrica","valor",”client_ip”,"dest_ip" */
+	a = make([] string, 7,7)
 	a[0] = "0"
 	a[1] = "1"
-	a[2] = "CPU"
-	a[3] = "30"
-	a[4] = "127.0.0.1:8008"
-	a[5] = "127.0.0.1:8007" 
-	a[6] = "10"
-	a[7] = "10"
+	a[2] = "Report"
+	a[3] = "CPU"
+	a[4] = "30"
+	a[5] = "127.0.0.1:54310" 
+	a[6] = "127.0.0.1:8008"
+	time.Sleep(1 * time.Second)
+
 	ch <- a
 	print("sent to channel")
 
@@ -180,7 +89,6 @@ func main() {
 	select{}
 
 
-	 time.Sleep(1 * time.Second)
 /*
 	// Send task packet
 	fmt.Println("\nSending Task Packet...")

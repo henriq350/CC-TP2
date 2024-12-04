@@ -64,7 +64,7 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
 					},
 					Data: AgentRegistration{
 						AgentID: "server-001",
-						IPv4:    net.ParseIP("127.0.0.1"),
+						IPv4:    "127.0.0.1",
 					},
 				}
 				last_sequence_number[connstate] = 1

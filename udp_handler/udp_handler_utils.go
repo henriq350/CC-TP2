@@ -7,6 +7,7 @@ import (
 )
 
 func sendUDPPacket(con *net.UDPConn, p *Packet, destination string) {
+	print("SendUDPPacket called. Destination: ",destination,"\n")
 	udpAddr, err := net.ResolveUDPAddr("udp", destination)
 	if err != nil {
 		fmt.Printf("Error resolving address: %v\n", err)

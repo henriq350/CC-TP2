@@ -10,8 +10,11 @@ import (
 
 func ListenClient(channel chan []string, con *net.UDPConn) {/* 
 	"client_id",”task_id”,“tipo”,"metrica","valor",”client_ip”,"dest_ip" */
+	print("Listen Client started.\n")
 	for {
 		a := <-channel
+		print("cleint:received array\n")
+		print("Length: ", len(a),"\n")
 		if len(a) == 7 {
 			//client_id := a[0]
 			//task_id := a[1]
@@ -19,7 +22,7 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 			metrica := a[3]
 			valor := a[4]
 			client_ip := a[5]
-			//dest_ip := a[6]
+			dest_ip := a[6]
 
 			// Get local address details
 			localAddr := con.LocalAddr().(*net.UDPAddr)
@@ -27,18 +30,18 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 			localPort := localAddr.Port
 
 			// Parse destination address for port
-			destAddr, err := net.ResolveUDPAddr("udp", client_ip)
+			destAddr, err := net.ResolveUDPAddr("udp", dest_ip)
 			if err != nil {
 				fmt.Printf("Error resolving destination address: %v\n", err)
 				print(client_ip)
 				print("\n")
 				continue
 			}
-			destIP := destAddr.IP.String()
-			destPort := destAddr.Port
-
+			 destIP := destAddr.IP.String()
+			destPort := destAddr.Port 
 			// Create connection state identifier with both IPs and ports
 			connstate := fmt.Sprintf("%s:%d:%s:%d", localIP, localPort, destIP, destPort)
+			print("connsstate:", connstate,"\n")
 			var sequence uint32 
 			sequence = last_sequence_number[connstate]
 			state := connection_states[connstate]
@@ -50,8 +53,8 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 			}else if (tipo == "Register"){
 				send = getRegisterPacket(client_ip,"0x01",sequence)
 			}
-
 			if state == 3 || state == 4 {
+				print("connection found.\n")
 				sendUDPPacket(con, send, client_ip)
 				last_sequence_number[connstate]++
 				
@@ -61,6 +64,8 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 				server_data_states[connstate][int(sequence)] = *send
 				
 			} else { // assuming case 0
+				print("connection .\n")
+				send.Print()
 				packet := &Packet{
 					Type:           RegisterPacket,
 					SequenceNumber: 1,
@@ -72,7 +77,7 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 					},
 					Data: AgentRegistration{
 						AgentID: "server-001",
-						IPv4:    net.ParseIP("127.0.0.1"),
+						IPv4:    "127.0.0.1",
 					},
 				}
 				last_sequence_number[connstate] = 1
@@ -86,7 +91,7 @@ func ListenClient(channel chan []string, con *net.UDPConn) {/*
 				//update seq 4 with packet to send
 				server_data_states[connstate][4] = *send
 				
-				sendUDPPacket(con, packet, client_ip)
+				sendUDPPacket(con, packet, dest_ip)
 			}
 		}
 	}
@@ -115,11 +120,10 @@ func getReportPacket(client_ip string , name string , value string ,sequence uin
 }
 //Register Packet
 func getRegisterPacket(client_ip string , name string , sequence uint32) *Packet {
-	host, _, _ := net.SplitHostPort(client_ip)
-	ip := net.ParseIP(host)
+	
 	tr := AgentRegistration{
 		AgentID:           name,
-		IPv4:          ip,
+		IPv4:          client_ip,
 	}
 	return &Packet{
 		Type:           ReportPacket,

@@ -1,5 +1,5 @@
-package udp_handler
-
+/*  package udp_handler
+ 
 import (
 	"bytes"
 	"encoding/binary"
@@ -357,4 +357,4 @@ func (p *Packet) Print() {
 		fmt.Printf("Unknown data type\n")
 	}
 	fmt.Println("=====================")
-}
+} */
