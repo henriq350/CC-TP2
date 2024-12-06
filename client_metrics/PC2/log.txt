@@ -1,0 +1,5 @@
+[2024-12-06 21:51:45] Agent PC2 registered
+[60651-1212-1251 21:51:49] Package received
+[60651-1212-1251 21:51:52] Package received
+[60651-1212-1251 21:51:55] Package received
+[60651-1212-1251 21:51:58] Package received

@@ -50,27 +50,21 @@ func main() {
 	
 	sendChannel := make(chan []string)
 	receiveChannel := make(chan []string)
+	newAgent := make(chan types.Agent)
 	defer close(sendChannel)
 	defer close(receiveChannel)
+	defer close(newAgent)
 
 	fmt.Println("Logs created...")
 	go logs.PersistLogs()
 
 	// Listener UDP, para resgistos, metricas, confirmacoes
 	fmt.Println("Starting UDP listener...")
-	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel, receiveChannel)
+	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel, receiveChannel, tasks)
 
 	// Listener TCP para alertas
 	fmt.Println("Starting TCP listener...")
 	go sAlertFlow.HandleTCP(tcpServerAddr, agents, logs)
-
-	// timer para enviar tarefas
-
-	time.Sleep(7* time.Second)
-
-	fmt.Println("Sending tasks to agents...\n")
-	SendTask(agents, tasks, sendChannel)
-	fmt.Printf("Tasks sent to agents...\n")
 
 	fmt.Println("Starting GUI...")
 	time.Sleep(2 * time.Second)
