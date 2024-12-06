@@ -49,14 +49,16 @@ func main() {
 	agents := make(map[string]types.Agent)
 	
 	sendChannel := make(chan []string)
+	receiveChannel := make(chan []string)
 	defer close(sendChannel)
+	defer close(receiveChannel)
 
 	fmt.Println("Logs created...")
 	go logs.PersistLogs()
 
 	// Listener UDP, para resgistos, metricas, confirmacoes
 	fmt.Println("Starting UDP listener...")
-	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel)
+	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel, receiveChannel)
 
 	// Listener TCP para alertas
 	fmt.Println("Starting TCP listener...")

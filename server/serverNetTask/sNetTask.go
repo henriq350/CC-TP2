@@ -13,7 +13,7 @@ import (
 
 var agentMutex sync.Mutex
 
-func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager, receiveChannel chan []string) {
+func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager, sendChannel, receiveChannel chan []string) {
 
 	udp_address,error := net.ResolveUDPAddr("udp",udpAddr)
 		if error != nil {
@@ -24,7 +24,7 @@ func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager,
 	connection_, _ := net.ListenUDP("udp", udp_address)
 	
 	go uh.ListenUdp("","",connection_ ,receiveChannel)
-	go uh.ListenServer(receiveChannel,connection_)
+	go uh.ListenServer(sendChannel,connection_)
 
 	//Receber mensagem e decidir o q fazer com ela
 	for packet := range receiveChannel {
@@ -45,7 +45,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 			fmt.Println("REGISTER!\nREGISTER!\nREGISTER!")
 			// Cria um agente a partir do pacote
 			agent := types.Agent{AgentID: packet[0], AgentIP: packet[5]}
-			currentTime := time.Now().Format("2024-11-14 15:04:05")
+			currentTime := time.Now().Format("2006-01-02 15:04:05")
 
 			// Adiciona a lista de agentes
 			agentMutex.Lock()
@@ -53,7 +53,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 			agentMutex.Unlock()
 
 			// Adiciona Log
-			log := fmt.Sprintf("[%s] Agent %s registered", currentTime, agent.AgentID)
+			log := fmt.Sprintf("Agent %s registered", agent.AgentID)
 			lm.AddLog(agent.AgentID, log, currentTime)
 			
 		case "Report":
@@ -77,7 +77,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 		case "Terminate":
 			
 			agent := types.Agent{AgentID: packet[0], AgentIP:  packet[5]}
-			currentTime := time.Now().Format("2024-11-14 15:04:05")
+			currentTime := time.Now().Format("2006-01-02 15:04:05")
 
 			
 			agentMutex.Lock()

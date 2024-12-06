@@ -1,3 +1,6 @@
-[60626-1212-1226 14:26:29] [60626-1212-1226 14:26:29] Agent  registered
-[60626-1212-1226 14:26:29][] [60626-1212-1226 14:26:29] Agent  registered
-[60635-1212-1235 14:35:08][PC2] [60635-1212-1235 14:35:08] Agent PC2 registered
+[2024-12-06 15:17:20][PC2] Agent PC2 registered
+[2024-12-06 15:24:07][PC2] Agent PC2 registered
+[2024-12-06 15:25:57][PC2] Agent PC2 registered
+[2024-12-06 15:30:28][PC2] Agent PC2 registered
+[2024-12-06 15:36:00][PC2] Agent PC2 registered
+[2024-12-06 15:41:59][PC2] Agent PC2 registered

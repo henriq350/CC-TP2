@@ -24,6 +24,7 @@ type Task struct {
 func AddTask(task []string, tasks map[string]Task) {
 	taskID := task[1]
 	tasks[taskID] = ParseTask(task[2:]) // Removes ClientID and TaskID
+    fmt.Println("Task added:", tasks[taskID])
 }
 
 //  "name"  "frequencia" "threshold" "dest_ip"  ”duration” ”packet_count”
@@ -118,6 +119,7 @@ func ProcessTask(taskID string, task Task, agentID string, serverIP string, udpC
 
 
 func monitorCPU(frequency int, threshold float32, send chan <- []string) {
+    fmt.Println("Monitoring CPU...")
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second) 
     defer ticker.Stop()
 

@@ -251,6 +251,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				
 				channel <- a
 				fmt.Println("[ListenUDP] Sent processed data to channel")
+				fmt.Println("[ListenUDP] Packet processed: ", a)
 			}
 		}
 	}

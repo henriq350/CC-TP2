@@ -38,12 +38,16 @@ func main() {
 
 	Tasks := make(map[string]tasks.Task)
 	taskChannel := make(chan []string)
-	tasksReady := make(chan struct{})
+    sendChannel := make(chan []string)
+
+    defer close(taskChannel)
+    defer close(sendChannel)
+	//tasksReady := make(chan struct{})
 	
-	go cNetTask.HandleUDP(clientIP, udpServerAddr ,taskChannel)
+	go cNetTask.HandleUDP(clientIP, udpServerAddr ,taskChannel, sendChannel)
 
 	register := []string{clientID, "","Register","","",clientIP,udpServerAddr}
-	taskChannel <- register
+	sendChannel <- register
 
 	go func() {
 		for task := range taskChannel {
@@ -55,8 +59,8 @@ func main() {
             if task[2] == "Task" { // Verifica se o pacote contém tarefas
                 tasks.AddTask(task, Tasks)
                 taskID := task[1]
-                go tasks.ProcessTask(taskID, Tasks[taskID], clientID, tcpServerAddr, taskChannel)
-                tasksReady <- struct{}{} // Sinaliza que as tarefas foram recebidas
+                go tasks.ProcessTask(taskID, Tasks[taskID], clientID, tcpServerAddr, sendChannel)
+                //tasksReady <- struct{}{} // Sinaliza que as tarefas foram recebidas
             }
         }
 	}()
@@ -69,7 +73,7 @@ func main() {
     fmt.Printf("Signal recevied %s. Sending terminate packet...\n", sig)
 
     terminate := []string{clientID, "","Terminate","","",clientIP,""}
-	taskChannel <- terminate
+	sendChannel <- terminate
 
     close(taskChannel)
 }
