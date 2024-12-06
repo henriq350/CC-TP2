@@ -173,78 +173,85 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				fmt.Println("[ListenUDP] Received ACK, moved to state 4")
 			}
  
-		case 3: // Sender: Sent ACK/Packet
+		/* case 3: // Sender: Sent ACK/Packet
 			fmt.Println("[ListenUDP] State 3: Processing ACK")
 			if packet.Flags.ACK {
 				ack := packet.AckNumber
 				delete(server_data_states[connID], int(ack))
 				fmt.Printf("[ListenUDP] Received ACK for sequence %d, removed from buffer\n", ack)
-			}
+				//connection_states[connID] = 4
+			} */
  
-		case 4: // Receiver: established connection
-			fmt.Printf("[ListenUDP] State 4: Processing data packet type: %s\n", packet.Type)
-			
-			sequence := packet.SequenceNumber
-			var a []string
- 
-			// Process packet based on type
-			if packet.Type == TaskPacket {
-				a = make([] string, 8,8)
-				r := packet.Data.([]TaskRecord)[0]
-				a[0] = r.ClientID
-				a[1] = r.TaskID
-				a[2] = r.Name
-				a[3] = fmt.Sprint(r.ReportFreq)
-				a[4] = r.CriticalValues[0]
-				a[5] = r.DestinationIp
-				a[6] = fmt.Sprint(r.Duration)    
-				a[7] = fmt.Sprint(r.PacketCount)				// ... rest of TaskPacket processing ...
-			} else if packet.Type == RegisterPacket {
-				fmt.Println("[ListenUDP] Processing Register packet")
-					a = make([]string,7,7)
-					r:= packet.Data.(AgentRegistration)
+		case 3,4: // Receiver: established connection
+			if packet.Flags.ACK == true {
+				fmt.Println("[ListenUDP] State 3: Processing ACK")
+				ack := packet.AckNumber
+				delete(server_data_states[connID], int(ack))
+				fmt.Printf("[ListenUDP] Received ACK for sequence %d, removed from buffer\n", ack)
+				//connection_states[connID] = 4
+			} else {
+				fmt.Printf("[ListenUDP] State 4: Processing data packet type: %s\n", packet.Type)
+				sequence := packet.SequenceNumber
+				var a []string
+				// Process packet based on type
+				if packet.Type == TaskPacket {
+					a = make([] string, 8,8)
+					r := packet.Data.([]TaskRecord)[0]
 					a[0] = r.ClientID
-					a[1] = ""
-					a[2] = "Register"
-					a[3] = ""
-					a[4] = ""
-					a[5] = r.IPv4 
-					a[6] = ""
-			} else if packet.Type == ReportPacket {
-				fmt.Println("[ListenUDP] Processing Report packet")
-				reports := packet.Data.([]ReportRecord)						
-				r := reports[0]
-				a = make([]string,7,7)
-				a[0] = r.ClientID
-				a[1] = r.TaskID
-				a[2] = "Report"
-				a[3] = r.Name
-				a[4] = r.Value
-				a[5] = destination_ipport
-				a[6] = r.DestinationIp
+					a[1] = r.TaskID
+					a[2] = r.Name
+					a[3] = fmt.Sprint(r.ReportFreq)
+					a[4] = r.CriticalValues[0]
+					a[5] = r.DestinationIp
+					a[6] = fmt.Sprint(r.Duration)    
+					a[7] = fmt.Sprint(r.PacketCount)				// ... rest of TaskPacket processing ...
+				} else if packet.Type == RegisterPacket {
+					fmt.Println("[ListenUDP] Processing Register packet")
+						a = make([]string,7,7)
+						r:= packet.Data.(AgentRegistration)
+						a[0] = r.ClientID
+						a[1] = ""
+						a[2] = "Register"
+						a[3] = ""
+						a[4] = ""
+						a[5] = r.IPv4 
+						a[6] = ""
+				} else if packet.Type == ReportPacket {
+					fmt.Println("[ListenUDP] Processing Report packet")
+					reports := packet.Data.([]ReportRecord)						
+					r := reports[0]
+					a = make([]string,7,7)
+					a[0] = r.ClientID
+					a[1] = r.TaskID
+					a[2] = "Report"
+					a[3] = r.Name
+					a[4] = r.Value
+					a[5] = destination_ipport
+					a[6] = r.DestinationIp
+				}
+				last_sequence_number[connID] = uint32(sequence+2)
+				// Send ACK
+				response := &Packet{
+					Type:           RegisterPacket,
+					SequenceNumber: sequence + 1,
+					AckNumber:      sequence,
+					Flags: Flags{
+						SYN: false,
+						ACK: true,
+						RET: false,
+					},
+					Data: AgentRegistration{
+						AgentID:  "server-001",
+						IPv4:     "127.0.0.1",
+						ClientID: "1",
+					},
+				}
+				sendUDPPackets_(connection, response, addr)
+				fmt.Printf("[ListenUDP] Sent ACK for sequence %d\n", sequence)
+				
+				channel <- a
+				fmt.Println("[ListenUDP] Sent processed data to channel")
 			}
-			last_sequence_number[connID] = uint32(sequence+2)
-			// Send ACK
-			response := &Packet{
-				Type:           RegisterPacket,
-				SequenceNumber: sequence + 1,
-				AckNumber:      sequence,
-				Flags: Flags{
-					SYN: false,
-					ACK: true,
-					RET: false,
-				},
-				Data: AgentRegistration{
-					AgentID:  "server-001",
-					IPv4:     "127.0.0.1",
-					ClientID: "1",
-				},
-			}
-			sendUDPPackets_(connection, response, addr)
-			fmt.Printf("[ListenUDP] Sent ACK for sequence %d\n", sequence)
-			
-			channel <- a
-			fmt.Println("[ListenUDP] Sent processed data to channel")
 		}
 	}
  }

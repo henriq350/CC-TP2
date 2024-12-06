@@ -51,7 +51,7 @@ func sendWithRetransmission_(con *net.UDPConn, p *Packet, udpAddr *net.UDPAddr, 
     // Send packet immediately
     fmt.Printf("[SEND] Initial transmission for connection %s, sequence %d\n", conID, sequenceNo)
     sendUDPPackets_(con, p, udpAddr)
-    
+    //connection_states[conID] = 3
     // Set up retransmission
 	if (retransmission){
 
