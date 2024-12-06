@@ -38,13 +38,15 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
             send := getTaskPacket(clientID, taskID, name, frequency, threshold, duration, packetCount, destIP, sequence)
 
             if state == 3 || state == 4 {
-                sendUDPPacket(con, send, clientID)
-                last_sequence_number[connstate]++
-                
+                //sendUDPPacket(con, send, clientID)
+                //sendUDPPacket(con, send, clientID)
                 if _, exists := server_data_states[connstate]; !exists {
                     server_data_states[connstate] = make(map[int]Packet)
                 }
                 server_data_states[connstate][int(sequence)] = *send
+                
+                sendWithRetransmission(con,send,clientID,connstate,int(sequence))
+                last_sequence_number[connstate]++
                 
             } else {
                 packet := &Packet{
@@ -71,7 +73,9 @@ func ListenServer(channel chan []string, con *net.UDPConn) {
                 server_data_states[connstate][1] = *packet
                 server_data_states[connstate][4] = *send
                 
-                sendUDPPacket(con, packet, clientID)
+                //sendUDPPacket(con, packet, clientID)
+                
+                sendWithRetransmission(con,send,clientID,connstate,int(sequence))
             }
         }
     }
