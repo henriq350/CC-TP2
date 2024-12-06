@@ -84,7 +84,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 		destIP := dest_address.IP.String()
 		destPort := dest_address.Port
 		connID := fmt.Sprintf("%s:%d:%s:%d", sourceIP, sourcePort, destIP, destPort)
-		//destination_ipport := fmt.Sprintf("%s:%d", destIP, destPort)
+		destination_ipport := fmt.Sprintf("%s:%d", destIP, destPort)
  
 		fmt.Printf("[ListenUDP] Connection details:\n")
 		fmt.Printf("  Source: %s:%d\n", sourceIP, sourcePort)
@@ -189,14 +189,39 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
  
 			// Process packet based on type
 			if packet.Type == TaskPacket {
-				fmt.Println("[ListenUDP] Processing Task packet")
-				// ... rest of TaskPacket processing ...
+				a = make([] string, 8,8)
+				r := packet.Data.([]TaskRecord)[0]
+				a[0] = r.ClientID
+				a[1] = r.TaskID
+				a[2] = r.Name
+				a[3] = fmt.Sprint(r.ReportFreq)
+				a[4] = r.CriticalValues[0]
+				a[5] = r.DestinationIp
+				a[6] = fmt.Sprint(r.Duration)    
+				a[7] = fmt.Sprint(r.PacketCount)				// ... rest of TaskPacket processing ...
 			} else if packet.Type == RegisterPacket {
 				fmt.Println("[ListenUDP] Processing Register packet")
-				// ... rest of RegisterPacket processing ...
+					a = make([]string,7,7)
+					r:= packet.Data.(AgentRegistration)
+					a[0] = ""
+					a[1] = ""
+					a[2] = "Register"
+					a[3] = ""
+					a[4] = ""
+					a[5] = r.IPv4 
+					a[6] = ""
 			} else if packet.Type == ReportPacket {
 				fmt.Println("[ListenUDP] Processing Report packet")
-				// ... rest of ReportPacket processing ...
+				reports := packet.Data.([]ReportRecord)						
+				r := reports[0]
+				a = make([]string,7,7)
+				a[0] = r.ClientID
+				a[1] = r.TaskID
+				a[2] = "Report"
+				a[3] = r.Name
+				a[4] = r.Value
+				a[5] = destination_ipport
+				a[6] = r.DestinationIp
 			}
 			last_sequence_number[connID] = uint32(sequence+2)
 			// Send ACK
@@ -241,5 +266,3 @@ func read_udp_packet(conn *net.UDPConn) Packet{
 		packet,_ := Deserialize(buf[:n]);
 		return *packet;
 } */
-
-
