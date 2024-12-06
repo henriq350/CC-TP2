@@ -1,7 +1,7 @@
 [
     {
         "id": "task-1",
-        "frequency": 20,
+        "frequency": 3,
         "devices": [
             {
                 "id": "r01",

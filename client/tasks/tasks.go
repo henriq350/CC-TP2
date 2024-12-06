@@ -110,31 +110,30 @@ func ProcessTask(taskID string, task Task, agentID string, serverIP string, udpC
             }
             th.SendAlert(serverIP, alert)
 			fmt.Println("Alert sent to server...")
-
-            udpMessage := []string{agentID, taskID, metricType, message[1], message[2]}
-            udpChannel <- udpMessage
         }
+
+        ipAddr := task.IpAddress
+
+        udpMessage := []string{agentID, taskID, "Report", metricType, message[1], "" ,ipAddr}
+        udpChannel <- udpMessage
     }
 }
 
 
 func monitorCPU(frequency int, threshold float32, send chan <- []string) {
-    fmt.Println("Monitoring CPU...")
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second) 
     defer ticker.Stop()
 
-    for {
-        select {
-        case <-ticker.C:
-            cpuUsage, err := metrics.GetCPUUsage()
-            if err != nil {
-                fmt.Println("Error getting CPU usage:", err)
-                continue
-            }
-
-			message := []string{"CPU", strconv.FormatFloat(cpuUsage, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
-            send <- message
+    for range ticker.C {
+        
+        cpuUsage, err := metrics.GetCPUUsage()
+        if err != nil {
+            fmt.Println("Error getting CPU usage:", err)
+            continue
         }
+
+        message := []string{"CPU", strconv.FormatFloat(cpuUsage, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
+        send <- message
     }
 }
 

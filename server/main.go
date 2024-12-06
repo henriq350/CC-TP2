@@ -74,8 +74,9 @@ func main() {
 
 	fmt.Println("Starting GUI...")
 	time.Sleep(2 * time.Second)
+	os.Stdout = nil
 	view.StartGUI(agents)
-
+	
 }
 
 

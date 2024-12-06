@@ -1,6 +1,21 @@
-[2024-12-06 15:17:20][PC2] Agent PC2 registered
-[2024-12-06 15:24:07][PC2] Agent PC2 registered
-[2024-12-06 15:25:57][PC2] Agent PC2 registered
-[2024-12-06 15:30:28][PC2] Agent PC2 registered
-[2024-12-06 15:36:00][PC2] Agent PC2 registered
-[2024-12-06 15:41:59][PC2] Agent PC2 registered
+[2024-12-06 15:55:24][PC2] Agent PC2 registered
+[2024-12-06 15:57:03][PC2] Agent PC2 registered
+[2024-12-06 15:58:09][PC2] Agent PC2 registered
+[2024-12-06 16:08:53][PC2] Agent PC2 registered
+[6069-1212-129 16:09:04][PC2] Package received
+[6069-1212-129 16:09:07][PC2] Package received
+[6069-1212-129 16:09:10][PC2] Package received
+[6069-1212-129 16:09:13][PC2] Package received
+[6069-1212-129 16:09:16][PC2] Package received
+[6069-1212-129 16:09:19][PC2] Package received
+[6069-1212-129 16:09:22][PC2] Package received
+[6069-1212-129 16:09:25][PC2] Package received
+[6069-1212-129 16:09:28][PC2] Package received
+[6069-1212-129 16:09:31][PC2] Package received
+[6069-1212-129 16:09:34][PC2] Package received
+[6069-1212-129 16:09:37][PC2] Package received
+[6069-1212-129 16:09:40][PC2] Package received
+[6069-1212-129 16:09:43][PC2] Package received
+[6069-1212-129 16:09:46][PC2] Package received
+[6069-1212-129 16:09:49][PC2] Package received
+[6069-1212-129 16:09:52][PC2] Package received

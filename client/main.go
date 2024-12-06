@@ -37,31 +37,23 @@ func main() {
 	fmt.Printf("%s Running... \n", clientID)
 
 	Tasks := make(map[string]tasks.Task)
-	taskChannel := make(chan []string)
+	receive := make(chan []string)
     sendChannel := make(chan []string)
 
-    defer close(taskChannel)
+    defer close(receive)
     defer close(sendChannel)
-	//tasksReady := make(chan struct{})
 	
-	go cNetTask.HandleUDP(clientIP, udpServerAddr ,taskChannel, sendChannel)
+	go cNetTask.HandleUDP(clientIP, udpServerAddr ,receive, sendChannel)
 
 	register := []string{clientID, "","Register","","",clientIP,udpServerAddr}
 	sendChannel <- register
 
 	go func() {
-		for task := range taskChannel {
+		for task := range receive {
             fmt.Println("Received task:", task)
-            if len(task) < 2 {
-                fmt.Println("Erro: Tamanho do slice task é menor que o esperado")
-                continue
-            }
-            if task[2] == "Task" { // Verifica se o pacote contém tarefas
-                tasks.AddTask(task, Tasks)
-                taskID := task[1]
-                go tasks.ProcessTask(taskID, Tasks[taskID], clientID, tcpServerAddr, sendChannel)
-                //tasksReady <- struct{}{} // Sinaliza que as tarefas foram recebidas
-            }
+            tasks.AddTask(task, Tasks)
+            taskID := task[1]
+            go tasks.ProcessTask(taskID, Tasks[taskID], clientID, tcpServerAddr, sendChannel)
         }
 	}()
 	
@@ -75,5 +67,4 @@ func main() {
     terminate := []string{clientID, "","Terminate","","",clientIP,""}
 	sendChannel <- terminate
 
-    close(taskChannel)
 }
