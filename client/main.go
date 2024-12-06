@@ -40,9 +40,9 @@ func main() {
 	taskChannel := make(chan []string)
 	tasksReady := make(chan struct{})
 	
-	go cNetTask.HandleUDP(udpServerAddr, taskChannel)
+	go cNetTask.HandleUDP(clientIP, taskChannel)
 
-	register := []string{clientID, "","Register","","",clientIP,""}
+	register := []string{clientID, "","Register","","",clientIP,udpServerAddr}
 	taskChannel <- register
 
 	go func() {
