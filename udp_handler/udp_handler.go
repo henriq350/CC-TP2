@@ -203,7 +203,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				fmt.Println("[ListenUDP] Processing Register packet")
 					a = make([]string,7,7)
 					r:= packet.Data.(AgentRegistration)
-					a[0] = ""
+					a[0] = r.ClientID
 					a[1] = ""
 					a[2] = "Register"
 					a[3] = ""

@@ -134,7 +134,7 @@ import (
                 send = getReportPacket(clientID, taskID, metrica, valor, destIP, sequence)
                 fmt.Println("[ListenClient] Created Report packet")
             case "Register":
-                send = getRegisterPacket(clientID, clientIP, metrica, sequence)
+                send = getRegisterPacket(clientID, clientIP, "", sequence)
                 fmt.Println("[ListenClient] Created Register packet")
             }
  
@@ -157,7 +157,7 @@ import (
                 packet := &Packet{
                     Type:           RegisterPacket,
                     SequenceNumber: 1,
-                    AckNumber:      send.SequenceNumber + 1,
+                    AckNumber:      1/* send.SequenceNumber + 1 */,
                     Flags: Flags{
                         SYN: true,
                         ACK: false,
@@ -192,6 +192,7 @@ import (
 
 
 func getReportPacket(clientID, taskID, name, value, destIP string, sequence uint32) *Packet {
+    print("Sending report packet. Sequence: ",sequence, ".\n")
     return &Packet{
         Type:           ReportPacket,
         SequenceNumber: sequence,
@@ -212,6 +213,7 @@ func getReportPacket(clientID, taskID, name, value, destIP string, sequence uint
 }
 
 func getRegisterPacket(clientID, clientIP, name string, sequence uint32) *Packet {
+    print("Sending register packet. Sequence: ",sequence, ".\n")
     return &Packet{
         Type:           RegisterPacket,
         SequenceNumber: sequence,
