@@ -175,6 +175,9 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
             state = 0
         }
 		print("\nReceived packet.\n")
+		print("\n\n")
+				packet.Print()
+				print("\n\n")	
 		switch state {
 			/// Initialize connection //////////////////////////////////////////////////////
 			case 0: // No connection
@@ -193,10 +196,11 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						Data: AgentRegistration{      // Add this
 							AgentID: "server-001",    // Use appropriate ID
 							IPv4:    "127.0.0.1", // Use appropriate IP
+							ClientID: "1",
 						},
 					}
-					 /* print("PRINT")
-					packet.Print()*/
+					print("PRINT")
+					packet.Print()
 					serialized, _ := response.Serialize()
 					/* print("serialized.length\n")
 					print("ADDRESS sent:")
@@ -225,6 +229,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						Data: AgentRegistration{      // Add this
 							AgentID: "server-001",    // Use appropriate ID
 							IPv4:    "127.0.0.1", // Use appropriate IP
+							ClientID: "1",
 						},
 					}
 					sendUDPPacket_(connection,response,addr)
@@ -329,6 +334,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn , channel chan [] 
 						Data: AgentRegistration{      // Add this
 							AgentID: "server-001",    // Use appropriate ID
 							IPv4:    "127.0.0.1", // Use appropriate IP
+							ClientID: "1",
 						},
 					}
 					sendUDPPacket_(connection,response,addr)

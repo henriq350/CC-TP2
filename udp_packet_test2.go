@@ -39,7 +39,7 @@ func main() {
 			
 		}() */
 	go udp_handler.ListenUdp("client","",listenConn,ch);
-	go udp_handler.ListenClient(ch,listenConn);
+	go udp_handler.ListenClient("127.0.0.1:8008",ch,listenConn);
 
 	var a [] string = make([]string,7,7)/* 
 	"client_id",”task_id”,“tipo”,"metrica","valor",”client_ip”,"dest_ip" */
