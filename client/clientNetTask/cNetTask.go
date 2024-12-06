@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func HandleUDP(udpAddr string, taskChannel chan []string) {
+func HandleUDP(udpAddr, udpServerIP string, taskChannel chan []string) {
 
 	// listner udp
 	udp_address, error := net.ResolveUDPAddr("udp", udpAddr)
@@ -23,7 +23,7 @@ func HandleUDP(udpAddr string, taskChannel chan []string) {
 	}
 
     go uh.ListenUdp("","",connection ,taskChannel)
-    go uh.ListenClient(taskChannel, connection)
+    go uh.ListenClient(udpServerIP,taskChannel, connection)
 
 	select {}
 }

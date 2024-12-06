@@ -21,13 +21,14 @@ func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager,
 			os.Exit(1)
 		}
 
-	connection_, error := net.ListenUDP("udp", udp_address)
+	connection_, _ := net.ListenUDP("udp", udp_address)
 	
 	go uh.ListenUdp("","",connection_ ,receiveChannel)
 	go uh.ListenServer(receiveChannel,connection_)
 
 	//Receber mensagem e decidir o q fazer com ela
 	for packet := range receiveChannel {
+		fmt.Printf("Received packet: %v\n", packet)
 		go handleUDPMessage(packet, agents, lm)
 	}
 	// Envia mensagem (com a task e ACKs) para os agents
@@ -41,9 +42,9 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 	switch packet[2] {
 		case "Register":
-			
+			fmt.Println("REGISTER!\nREGISTER!\nREGISTER!")
 			// Cria um agente a partir do pacote
-			agent := types.Agent{packet[0], packet[5]}
+			agent := types.Agent{AgentID: packet[0], AgentIP: packet[5]}
 			currentTime := time.Now().Format("2024-11-14 15:04:05")
 
 			// Adiciona a lista de agentes
@@ -65,17 +66,17 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 			formatedString, currentTime := db.FormatString(metrics) 
 
-			filename := fmt.Sprintf("%s", &currentTime)
+			filename := currentTime
 
 			db.StringToFile(agentID , filename, formatedString)
 
 			// Adiciona nos Logs
-			log := fmt.Sprintf("Package received")
+			log := "Package received"
 			lm.AddLog(agentID ,log, currentTime)
 
 		case "Terminate":
 			
-			agent := types.Agent{packet[0], packet[5]}
+			agent := types.Agent{AgentID: packet[0], AgentIP:  packet[5]}
 			currentTime := time.Now().Format("2024-11-14 15:04:05")
 
 			

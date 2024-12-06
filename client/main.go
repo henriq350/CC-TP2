@@ -15,7 +15,7 @@ func main() {
 
 	//Get server IP
 	if len(os.Args) < 2 {
-        fmt.Println("Insert server IP\nExample: go run main.go 10.0.0.1\n")
+        fmt.Println("Insert server IP\nExample: go run main.go 10.0.0.1")
         os.Exit(1)
     }
 
@@ -40,13 +40,14 @@ func main() {
 	taskChannel := make(chan []string)
 	tasksReady := make(chan struct{})
 	
-	go cNetTask.HandleUDP(clientIP, taskChannel)
+	go cNetTask.HandleUDP(clientIP, udpServerAddr ,taskChannel)
 
 	register := []string{clientID, "","Register","","",clientIP,udpServerAddr}
 	taskChannel <- register
 
 	go func() {
 		for task := range taskChannel {
+            fmt.Println("Received task:", task)
             if len(task) < 2 {
                 fmt.Println("Erro: Tamanho do slice task é menor que o esperado")
                 continue
