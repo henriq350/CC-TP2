@@ -44,10 +44,7 @@ func main() {
 		return
 	}
 
-	// Clear DB
 	db.Cleanup()
-
-	// create metrics folder
 	db.CreateClientMetrics()
 
 	logs := db.NewLogManager()
@@ -64,11 +61,9 @@ func main() {
 	fmt.Println("Logs created...")
 	go logs.PersistLogs()
 
-	// Listener UDP, para resgistos, metricas, confirmacoes
 	fmt.Println("Starting UDP listener...")
 	go sNetTask.HandleUDP(udpServerAddr, agents, logs, sendChannel, receiveChannel, tasks)
 
-	// Listener TCP para alertas
 	fmt.Println("Starting TCP listener...")
 	go sAlertFlow.HandleTCP(tcpServerAddr, agents, logs)
 
@@ -83,11 +78,6 @@ func main() {
 		select {}
 	}
 	
-		
-		// time.Sleep(15 * time.Second)
-	// str, _ := logs.GetAllGeneralLogs()
-	// fmt.Println(str)
-	// select {}
 }
 
 

@@ -51,16 +51,16 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 	switch packet[2] {
 		case "Register":
-			// Cria um agente a partir do pacote
+			e
 			agent := types.Agent{AgentID: packet[0], AgentIP: packet[5]}
 			currentTime := time.Now().Format("15:04:05")
 
-			// Adiciona a lista de agentes
+			
 			agentMutex.Lock()
 			types.AddAgent(agent, agents)
 			agentMutex.Unlock()
 
-			// Adiciona Log
+			
 			log := fmt.Sprintf("Agent %s registered", agent.AgentID)
 			lm.AddLog(agent.AgentID, log, currentTime, true)
 			
@@ -81,7 +81,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 			db.StringToFile(agentID , filename, formatedString)
 
-			// Adiciona nos Logs
+			
 			log := "Packet received" + db.FormatStringLog(metrics)
 			currentTime = time.Now().Format("15:04:05")
 			lm.AddLog(agentID ,log, currentTime, false)
@@ -96,7 +96,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 			types.RemoveAgent(agent, agents)
 			agentMutex.Unlock()
 
-			// Escreve no log e remove o buffer do maps de logs
+			
 			log := fmt.Sprintf("Agent %s disconnected...", agent.AgentID)
 			lm.AddLog(agent.AgentID, log, currentTime, false)
 			lm.RemoveClientBuffer(agent.AgentID)

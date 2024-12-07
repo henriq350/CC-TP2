@@ -103,7 +103,7 @@ func FormatStringLog(data []string) string {
 
 /////////////////////////////  WRITE LOGS
 
-// Construtor do LogManager
+// init new LogManager
 func NewLogManager() *LogManager {
 	return &LogManager{
 		ClientBuffers: make(map[string][]string),
@@ -112,7 +112,7 @@ func NewLogManager() *LogManager {
 	}
 }
 
-// log to client
+// add log to client buffer and general buffer
 func (lm *LogManager) AddLog(clientID, log string, time string, isRegister bool) {
 	lm.Mutex.Lock()
 	defer lm.Mutex.Unlock()
@@ -138,7 +138,7 @@ func (lm *LogManager) RemoveClientBuffer(clientID string) {
 	lm.Mutex.Lock()
 	defer lm.Mutex.Unlock()
 
-	// Saves information inside buffer before removing
+	// saves information inside buffer before removing
 	if logs, exists := lm.ClientBuffers[clientID]; exists && len(logs) > 0 {
 		filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
 		file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -217,12 +217,11 @@ func (lm *LogManager) PersistLogs() {
 
 //////////// Client Logs
 
-// Lê os logs do buffer para um cliente específico
 func (lm *LogManager) GetLogsFromBuffer(clientID string) []string {
 	lm.Mutex.Lock()
 	defer lm.Mutex.Unlock()
 
-	// Copia para prevenir concorrencia
+
 	logs := make([]string, len(lm.ClientBuffers[clientID]))
 	copy(logs, lm.ClientBuffers[clientID])
 
@@ -253,7 +252,7 @@ func (lm *LogManager) GetLogsFromFile(clientID string) ([]string, error) {
 	return logs, nil
 }
 
-// combinacao dos logs em buffer e dos logs em memoria
+
 func (lm *LogManager) GetAllLogs(clientID string) ([]string, error) {
 
 	logsFromBuffer := lm.GetLogsFromBuffer(clientID)

@@ -26,7 +26,6 @@ func ParseTasks(filename string) ([]config.Task, error) {
 		return nil, fmt.Errorf(errMsg)
 	}
 
-	// Reseta o ponteiro do ficheiro para o inicio
 	file.Seek(0, io.SeekStart)
 
 	var tasks []config.Task

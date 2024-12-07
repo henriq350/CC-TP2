@@ -69,6 +69,4 @@ func main() {
     terminate := []string{clientID, "","Terminate","","",clientIP,udpServerAddr}
 	sendChannel <- terminate
     
-    // <-terminateChan
-    // fmt.Println("Terminated!")
 }
