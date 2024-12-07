@@ -1,0 +1,6 @@
+Received at: 60638-1212-1238 19:38:10
+
+=======[TasK task-1]=======
+CPU: 1.04
+Source IP: 10.0.0.21:9090
+Destination IP: 0
