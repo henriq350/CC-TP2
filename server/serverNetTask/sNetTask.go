@@ -51,7 +51,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 	switch packet[2] {
 		case "Register":
-			e
+
 			agent := types.Agent{AgentID: packet[0], AgentIP: packet[5]}
 			currentTime := time.Now().Format("15:04:05")
 
