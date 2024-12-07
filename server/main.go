@@ -78,7 +78,7 @@ func main() {
 	//
 	if true {
 		os.Stdout = nil
-		view.StartGUI(agents)
+		view.StartGUI(agents,logs)
 		} else {
 			select{}
 		}

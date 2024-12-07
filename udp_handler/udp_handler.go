@@ -233,13 +233,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
  
 		case 4: // Receiver: established connection´
 			sequence := packet.SequenceNumber
-			if packet.Flags.ACK == true {
-				fmt.Println("[ListenUDP] State 3: Processing ACK")
-				ack := packet.AckNumber
-				delete(server_data_states[connID], int(ack))
-				fmt.Printf("[ListenUDP] Received ACK for sequence %d, removed from buffer\n", ack)
-				//connection_states[connID] = 4
-			} else if (packet.Flags.RET){
+			if (packet.Flags.RET){
 				terminate_tries = 5
 				fmt.Println("[ListenUDP] Received terminate request.")
 				last_sequence_number[connID] = uint32(sequence+2)
@@ -262,7 +256,13 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				sendWithRetransmission_(connection,response,addr,connID,int(sequence+1))		
 				connection_states[connID] = 6
 					//terminate(connID)
-				} else {
+				} else if packet.Flags.ACK == true {
+				fmt.Println("[ListenUDP] State 3: Processing ACK")
+				ack := packet.AckNumber
+				delete(server_data_states[connID], int(ack))
+				fmt.Printf("[ListenUDP] Received ACK for sequence %d, removed from buffer\n", ack)
+				//connection_states[connID] = 4
+			} else {
 				fmt.Printf("[ListenUDP] State 4: Processing data packet type: %s\n", packet.Type)
 				var a []string
 				// Process packet based on type
@@ -381,7 +381,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 			/* if (terminate_tries == 0){
 				terminate(connID)
 			} */
-		}	else if (packet.Flags.ACK){
+		}else if (packet.Flags.ACK){
 				terminate(connID)
 			}
 		//case 7: //SENT ACK
