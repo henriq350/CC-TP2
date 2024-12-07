@@ -127,3 +127,73 @@
 [60637-1212-1237 19:37:51][n2] Package received
 [60637-1212-1237 19:37:52][n2] Package received
 [60637-1212-1237 19:37:54][n2] Package received
+[2024-12-07 14:14:58][n2] Agent n2 registered
+[70715-1212-1215 14:15:02][n2] Package received
+[2024-12-07 14:15:05][n2] Agent n2 registered
+[70715-1212-1215 14:15:05][n2] Package received
+[70715-1212-1215 14:15:08][n2] Package received
+[70715-1212-1215 14:15:09][n2] Package received
+[70715-1212-1215 14:15:09][n2] Package received
+[70715-1212-1215 14:15:11][n2] Package received
+[2024-12-07 14:15:12][n2] Agent n2 registered
+[70715-1212-1215 14:15:12][n2] Package received
+[70715-1212-1215 14:15:12][n2] Package received
+[70715-1212-1215 14:15:14][n2] Package received
+[70715-1212-1215 14:15:15][n2] Package received
+[70715-1212-1215 14:15:15][n2] Package received
+[70715-1212-1215 14:15:16][n2] Package received
+[70715-1212-1215 14:15:17][n2] Package received
+[70715-1212-1215 14:15:18][n2] Package received
+[70715-1212-1215 14:15:18][n2] Package received
+[70715-1212-1215 14:15:19][n2] Package received
+[70715-1212-1215 14:15:20][n2] Package received
+[70715-1212-1215 14:15:21][n2] Package received
+[70715-1212-1215 14:15:21][n2] Package received
+[70715-1212-1215 14:15:22][n2] Package received
+[70715-1212-1215 14:15:23][n2] Package received
+[70715-1212-1215 14:15:24][n2] Package received
+[70715-1212-1215 14:15:24][n2] Package received
+[70715-1212-1215 14:15:25][n2] Package received
+[70715-1212-1215 14:15:26][n2] Package received
+[70715-1212-1215 14:15:27][n2] Package received
+[70715-1212-1215 14:15:27][n2] Package received
+[70715-1212-1215 14:15:28][n2] Package received
+[70715-1212-1215 14:15:29][n2] Package received
+[70715-1212-1215 14:15:30][n2] Package received
+[70715-1212-1215 14:15:30][n2] Package received
+[70715-1212-1215 14:15:31][n2] Package received
+[70715-1212-1215 14:15:32][n2] Package received
+[70715-1212-1215 14:15:33][n2] Package received
+[70715-1212-1215 14:15:33][n2] Package received
+[70715-1212-1215 14:15:34][n2] Package received
+[70715-1212-1215 14:15:35][n2] Package received
+[70715-1212-1215 14:15:36][n2] Package received
+[70715-1212-1215 14:15:36][n2] Package received
+[2024-12-07 14:16:33][n2] Agent n2 registered
+[70716-1212-1216 14:16:37][n2] Package received
+[2024-12-07 15:55:49][n2] Agent n2 registered
+[2024-12-07 15:55:49][n2] Agent n2 registered
+[70755-1212-1255 15:55:53][n2] Package received
+[2024-12-07 15:55:56][n2] Agent n2 registered
+[70755-1212-1255 15:55:56][n2] Package received
+[70755-1212-1255 15:55:59][n2] Package received
+[70756-1212-1256 15:56:00][n2] Package received
+[70756-1212-1256 15:56:00][n2] Package received
+[70756-1212-1256 15:56:02][n2] Package received
+[70756-1212-1256 15:56:03][n2] Package received
+[70756-1212-1256 15:56:03][n2] Package received
+[70756-1212-1256 15:56:03][n2] Package received
+[70756-1212-1256 15:56:05][n2] Package received
+[70756-1212-1256 15:56:06][n2] Package received
+[70756-1212-1256 15:56:06][n2] Package received
+[70756-1212-1256 15:56:06][n2] Package received
+[70756-1212-1256 15:56:07][n2] Package received
+[70756-1212-1256 15:56:07][n2] Package received
+[70756-1212-1256 15:56:07][n2] Package received
+[70756-1212-1256 15:56:08][n2] Package received
+[70756-1212-1256 15:56:09][n2] Package received
+[70756-1212-1256 15:56:09][n2] Package received
+[70756-1212-1256 15:56:09][n2] Package received
+[70756-1212-1256 15:56:10][n2] Package received
+[70756-1212-1256 15:56:10][n2] Package received
+[70756-1212-1256 15:56:10][n2] Package received
