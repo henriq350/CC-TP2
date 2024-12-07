@@ -4,8 +4,8 @@ import (
 	"ccproj/server/db"
 	sAlertFlow "ccproj/server/serverAlertFlow"
 	sNetTask "ccproj/server/serverNetTask"
-	"ccproj/server/view"
 	"ccproj/server/types"
+	"ccproj/server/view"
 	"ccproj/utils"
 	"fmt"
 	"os"
@@ -44,6 +44,12 @@ func main() {
 		return
 	}
 
+	// Clear DB
+	db.Cleanup()
+
+	// create metrics folder
+	db.CreateClientMetrics()
+
 	logs := db.NewLogManager()
 	fmt.Println("Agent maps created...")
 	agents := make(map[string]types.Agent)
@@ -68,6 +74,7 @@ func main() {
 
 	fmt.Println("Starting GUI...")
 	time.Sleep(2 * time.Second)
+
 	//
 	if true {
 		os.Stdout = nil
@@ -75,7 +82,10 @@ func main() {
 		} else {
 			select{}
 		}
-	
+		// time.Sleep(15 * time.Second)
+	// str, _ := logs.GetAllGeneralLogs()
+	// fmt.Println(str)
+	// select {}
 }
 
 
