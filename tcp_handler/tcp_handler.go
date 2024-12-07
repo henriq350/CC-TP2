@@ -44,7 +44,7 @@ func (am AlertMetric) String() string {
 func ListenTcp(address string, alertChan chan <- AlertMessage) {
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		fmt.Println("Erro ao iniciar o servidor TCP:", err)
+		fmt.Println("Error starting TCP server:", err)
 		os.Exit(1)
 	}
 	defer listener.Close()

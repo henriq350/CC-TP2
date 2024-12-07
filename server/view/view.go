@@ -12,7 +12,7 @@ import (
 
 var app *tview.Application
 
-// var agents map[string]nmsServer.AgentRegistration
+
 var logView *tview.TextView
 var mM *tview.List
 var menuStack []*tview.List
@@ -20,7 +20,7 @@ var logManager = db.NewLogManager()
 var agents map[string]types.Agent
 
 
-// StartGUI inicia a interface gráfica no terminal
+
 func StartGUI(agentMap map[string]types.Agent, lm *db.LogManager) {
 	
 	logManager = lm
@@ -48,7 +48,7 @@ func StartGUI(agentMap map[string]types.Agent, lm *db.LogManager) {
 	}
 }
 
-// showClientsMenu exibe o menu de clientes conectados
+
 func showClientsMenu() {
 	clientsMenu := tview.NewList()
 
@@ -68,7 +68,7 @@ func showClientsMenu() {
 	app.SetRoot(clientsMenu, true)
 }
 
-// showClientFiles exibe os arquivos .txt disponíveis para um cliente
+
 func showClientFiles(agentID string) {
 	clientFilesMenu := tview.NewList()
 	clientDir := fmt.Sprintf("../client_metrics/%s", agentID)
@@ -100,7 +100,6 @@ func showClientFiles(agentID string) {
 	app.SetRoot(clientFilesMenu, true)
 }
 
-// showClientLogs exibe os logs do cliente
 func showClientLogs(clientID string) {
 	logs, err := logManager.GetAllLogs(clientID)
 	if err != nil {
@@ -148,7 +147,7 @@ func showAllMetrics() {
 	app.SetRoot(metricsMenu, true)
 }
 
-// showFileContent exibe o conteúdo de um arquivo .txt
+
 func showFileContent(clientDir, fileName string) {
 	filePath := fmt.Sprintf("%s/%s", clientDir, fileName)
 	content, err := ioutil.ReadFile(filePath)
@@ -170,7 +169,7 @@ func showFileContent(clientDir, fileName string) {
 	app.SetRoot(fileContentView, true)
 }
 
-// showLogs exibe os logs do servidor em tempo real
+
 func showLogs() {
 	logs, err := logManager.GetAllGeneralLogs()
     if err != nil {
@@ -192,20 +191,19 @@ func showLogs() {
 }
 
 
-// AddLog adiciona uma entrada de log
+
 func AddLog(log string) {
 	fmt.Fprintln(logView, log)
 	app.Draw()
 }
 
-// pushMenu adiciona um menu à stack
+
 func pushMenu(menu tview.Primitive) {
 	if list, ok := menu.(*tview.List); ok {
 		menuStack = append(menuStack, list)
 	}
 }
 
-// popMenu remove e retorna o menu do topo da stack
 func popMenu() tview.Primitive {
 	if len(menuStack) == 0 {
 		return mM

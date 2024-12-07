@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-// NOTE> Podera ser necessario alterar os valores do tipo de task a se enviar, uma vez que pode ser diferente no udpHandler
-
 type Task struct {
 	nTask int
 	MetricType []string
@@ -62,8 +60,6 @@ func ProcessTask(taskID string, task Task, agentID string, serverIP string, udpC
 	fmt.Printf("Task %s started...\n", taskID)
     metricsChannel := make(chan []string)
     defer close(metricsChannel)
-
-	// routine para enviar mensagens para o servidor
 	
 	for _, metric := range task.MetricType {
 		switch metric {
@@ -82,7 +78,7 @@ func ProcessTask(taskID string, task Task, agentID string, serverIP string, udpC
         }
 	}
 
-    // Send Alert message
+    // Send Alert message and metrics
 	for message := range metricsChannel {
         metricType := message[0]
         value, _ := strconv.ParseFloat(message[1], 32)

@@ -7,7 +7,7 @@ import (
 )
 
 
-// Função para serializar a mensagem
+
 func SerializeAlert(alert AlertMessage) ([]byte, error) {
 	var buffer bytes.Buffer
 	
@@ -22,7 +22,7 @@ func SerializeAlert(alert AlertMessage) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-// Função para desserializar a mensagem
+
 func DeserializeAlert(data []byte) (AlertMessage, error) {
 	var alert AlertMessage
 
