@@ -124,8 +124,12 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 						ClientID: "1",
 					},
 				}
-				sendUDPPackets_(connection, response, addr)
-				connection_states[connID] = 2
+				//sendUDPPackets_(connection, response, addr)
+				success := sendWithRetransmission_(connection,response,addr,connID,2)
+				success = success
+				//if success {
+					connection_states[connID] = 2
+				//}
 				fmt.Println("[ListenUDP] Sent SYN+ACK, moved to state 2")
 			} else {
 				fmt.Printf("[ListenUDP] Error: Expected SYN flag on connection %s\n", connID)
@@ -138,7 +142,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				fmt.Println("[ListenUDP] Received SYN+ACK, sending ACK")
 				response := &Packet{
 					Type:           RegisterPacket,
-					SequenceNumber: uint32(sequence),
+					SequenceNumber: 3,
 					AckNumber:      2,
 					Flags: Flags{
 						SYN: false,
@@ -151,7 +155,8 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 						ClientID: "1",
 					},
 				}
-				sendWithRetransmission_(connection, response, addr, connID, sequence)
+				//sendWithRetransmission_(connection, response, addr, connID, sequence)
+				sendUDPPackets_(connection,response,addr)
 				connection_states[connID] = 3
 				fmt.Println("[ListenUDP] Sent ACK, moved to state 3")
  
@@ -183,7 +188,25 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 			} */
  
 		case 3,4: // Receiver: established connection
-			if packet.Flags.ACK == true {
+			if packet.Flags.SYN && packet.Flags.ACK {
+				fmt.Println("[ListenUDP] Received SYN+ACK, sending ACK")
+				response := &Packet{
+					Type:           RegisterPacket,
+					SequenceNumber: 3,
+					AckNumber:      2,
+					Flags: Flags{
+						SYN: false,
+						ACK: true,
+						RET: false,
+					},
+					Data: AgentRegistration{
+						AgentID:  "server-001",
+						IPv4:     "127.0.0.1",
+						ClientID: "1",
+					},
+				}
+				sendUDPPackets_(connection,response,addr)
+			}else if packet.Flags.ACK == true {
 				fmt.Println("[ListenUDP] State 3: Processing ACK")
 				ack := packet.AckNumber
 				delete(server_data_states[connID], int(ack))
@@ -204,7 +227,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 					a[4] = r.CriticalValues[0]
 					a[5] = r.DestinationIp
 					a[6] = fmt.Sprint(r.Duration)    
-					a[7] = fmt.Sprint(r.PacketCount)				// ... rest of TaskPacket processing ...
+					a[7] = fmt.Sprint(r.PacketCount)				
 				} else if packet.Type == RegisterPacket {
 					fmt.Println("[ListenUDP] Processing Register packet")
 						a = make([]string,7,7)

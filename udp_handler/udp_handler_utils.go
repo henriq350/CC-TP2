@@ -34,8 +34,8 @@ func sendUDPPackets_(con *net.UDPConn, p *Packet,udpAddr *net.UDPAddr) {
 
 }
 
-var waitTime int = 7
-var maxRetries int = 5
+var waitTime int = 1
+var maxRetries int = 10
 
 func sendWithRetransmission(con *net.UDPConn, p *Packet, destination string, con_id string, sequence_no int) {
     udpAddr, err := net.ResolveUDPAddr("udp", destination)
@@ -47,14 +47,13 @@ func sendWithRetransmission(con *net.UDPConn, p *Packet, destination string, con
 }
 
  var retransmission bool = true
-func sendWithRetransmission_(con *net.UDPConn, p *Packet, udpAddr *net.UDPAddr, conID string, sequenceNo int) /* (success bool) */ {
+func sendWithRetransmission_(con *net.UDPConn, p *Packet, udpAddr *net.UDPAddr, conID string, sequenceNo int)  (success bool) {
     // Send packet immediately
     fmt.Printf("[SEND] Initial transmission for connection %s, sequence %d\n", conID, sequenceNo)
     sendUDPPackets_(con, p, udpAddr)
     //connection_states[conID] = 3
     // Set up retransmission
 	sent := true
-	sent = sent
 	if (retransmission){
 	sent = false
     go func() {
@@ -82,7 +81,7 @@ func sendWithRetransmission_(con *net.UDPConn, p *Packet, udpAddr *net.UDPAddr, 
         }
     }()
 }
-//return sent
+return sent
 }
 
  
