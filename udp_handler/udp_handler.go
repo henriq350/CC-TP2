@@ -322,13 +322,17 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				}
 				sendUDPPackets_(connection, response, addr)
 				fmt.Printf("[ListenUDP] Sent ACK for sequence %d\n", sequence)
-				if valid_sequence_numbers[connID][int(sequence)] == true{
-					channel <- a
-					fmt.Println("[ListenUDP] Sent processed data to channel")
-					fmt.Println("[ListenUDP] Packet processed: ", a)
+				channel <- a
+				 if valid_sequence_numbers[connID][int(sequence)] == true{
+					//channel <- a
+					 fmt.Println("[ListenUDP] Sent processed data to channel")
+					fmt.Println("[ListenUDP] Packet processed: ", a) 
+					if _, exists := valid_sequence_numbers[connID]; !exists {
+						valid_sequence_numbers[connID] = make(map[int]bool)
+					}				
+					valid_sequence_numbers[connID][int(sequence)] = true	
+				} 
 				}
-				valid_sequence_numbers[connID][int(sequence)] = true
-			}
 		case 5: //SENT FIN, RECEIVED FIN + ACK
 			//received FIN + ACK
 			if (packet.Flags.RET && packet.Flags.ACK){
