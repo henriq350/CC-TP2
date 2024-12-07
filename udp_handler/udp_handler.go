@@ -19,7 +19,7 @@ var last_sequence_number map[string]uint32 = make(map[string]uint32)
 
 
 
-func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []string) {
+func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []string, term chan bool) {
 	fmt.Printf("[ListenUDP] Starting UDP listener. Type: %s, Address: %s\n", type_, address)
 	
 	var connection *net.UDPConn
@@ -102,7 +102,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
  
 		fmt.Printf("[ListenUDP] Received packet details:\n")
 		packet.Print()
- 
+		terminate_tries := 5
 		// State machine
 		switch state {
 		case 0: // No connection
@@ -240,6 +240,7 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				fmt.Printf("[ListenUDP] Received ACK for sequence %d, removed from buffer\n", ack)
 				//connection_states[connID] = 4
 			} else if (packet.Flags.RET){
+				terminate_tries = 5
 				fmt.Println("[ListenUDP] Received terminate request.")
 				last_sequence_number[connID] = uint32(sequence+2)
 				// Send ACK
@@ -348,6 +349,11 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 					},
 				}
 				sendUDPPackets_(connection, response, addr)
+				if (terminate_tries == 0){
+					terminate(connID)
+					term <- true
+				}
+				terminate_tries -= 1
 				//terminate(connID)
 			}
 		case 6: //SENT FIN + ACK
@@ -372,6 +378,9 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				},
 			}
 			sendWithRetransmission_(connection,response,addr,connID,int(sequence+1))	
+			/* if (terminate_tries == 0){
+				terminate(connID)
+			} */
 		}	else if (packet.Flags.ACK){
 				terminate(connID)
 			}

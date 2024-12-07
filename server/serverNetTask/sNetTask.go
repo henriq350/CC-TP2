@@ -31,8 +31,9 @@ func HandleUDP(udpAddr string, agents map[string]types.Agent, lm *db.LogManager,
 		}
 
 	connection_, _ := net.ListenUDP("udp", udp_address)
+	term := make(chan bool)
+	go uh.ListenUdp("","",connection_ ,receiveChannel,term)
 	
-	go uh.ListenUdp("","",connection_ ,receiveChannel)
 	go uh.ListenServer(sendChannel,connection_)
 
 	//Receber mensagem e decidir o q fazer com ela
