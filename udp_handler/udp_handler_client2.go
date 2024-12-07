@@ -130,6 +130,10 @@ import (
             // Create packet based on type
             var send *Packet
             switch tipo {
+            case "Terminate":
+                send = getTerminatePacket(clientID, clientIP, "", sequence)
+                fmt.Println("[ListenClient] Created Terminate packet")
+                connection_states[connstate] = 5
             case "Report":
                 send = getReportPacket(clientID, taskID, metrica, valor, destIP, sequence)
                 fmt.Println("[ListenClient] Created Report packet")
@@ -138,7 +142,7 @@ import (
                 fmt.Println("[ListenClient] Created Register packet")
             }
  
-            if state == 3 || state == 4 {
+            if state == 3 || state == 4 || state == 5 {
                 fmt.Println("[ListenClient] Connection established, sending data directly")
                 last_sequence_number[connstate]++
                 
@@ -152,7 +156,7 @@ import (
                 
                 sendWithRetransmission(con, send, server_ip, connstate, int(sequence))
                 fmt.Printf("[ListenClient] Sent packet with retransmission, sequence %d\n", sequence)
-            } else {
+            } else{
                 fmt.Println("[ListenClient] Connection not established, starting handshake")
                 packet := &Packet{
                     Type:           RegisterPacket,
@@ -229,4 +233,23 @@ func getRegisterPacket(clientID, clientIP, name string, sequence uint32) *Packet
             ClientID: clientID,
         },
     }
+}
+
+    func getTerminatePacket(clientID, clientIP, name string, sequence uint32) *Packet {
+        print("Sending terminate packet. Sequence: ",sequence, ".\n")
+        return &Packet{
+            Type:           RegisterPacket,
+            SequenceNumber: sequence,
+            AckNumber:      60000,
+            Flags: Flags{
+                SYN: false,
+                ACK: false,
+                RET: true,
+            },
+            Data: AgentRegistration{
+                AgentID:  name,
+                IPv4:     clientIP,
+                ClientID: clientID,
+            },
+        }
 }
