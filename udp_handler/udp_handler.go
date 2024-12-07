@@ -125,14 +125,10 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 					},
 				}
 				//sendUDPPackets_(connection, response, addr)
-				success := sendWithRetransmission_(connection, response, addr,connID,2)
-				if success{
-					connection_states[connID] = 2
-					fmt.Println("[ListenUDP] Sent SYN+ACK, moved to state 2")
-				} else{
-					fmt.Println("[ListenUDP] Failed to send SYN+ACK")
-				}
-			} else {
+				sendWithRetransmission_(connection, response, addr,connID,2)
+				connection_states[connID] = 2
+				fmt.Println("[ListenUDP] Attempted SYN+ACK")
+				} else {
 				fmt.Printf("[ListenUDP] Error: Expected SYN flag on connection %s\n", connID)
 			}
 
@@ -161,9 +157,37 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				connection_states[connID] = 3
 				delete(server_data_states[connID],1)
 				fmt.Println("[ListenUDP] Sent ACK, moved to state 3")
- 
-				
 			}
+
+		case 2: // Receiver: sent SYN + ACK
+			if packet.Flags.SYN && !packet.Flags.ACK {
+				fmt.Println("[ListenUDP] Received SYN, sending SYN+ACK")
+				response := &Packet{
+					Type:           RegisterPacket,
+					SequenceNumber: 2,
+					AckNumber:      1,
+					Flags: Flags{
+						SYN: true,
+						ACK: true,
+						RET: false,
+					},
+					Data: AgentRegistration{
+						AgentID:  "server-001",
+						IPv4:     "127.0.0.1",
+						ClientID: "1",
+					},
+				}
+				//sendUDPPackets_(connection, response, addr)
+				sendWithRetransmission_(connection, response, addr,connID,2)
+				fmt.Println("[ListenUDP] Attempted SYN+ACK")
+				} else { 
+				if packet.Flags.ACK && !packet.Flags.SYN {
+					connection_states[connID] = 4
+					last_sequence_number[connID] = 4
+					delete(server_data_states[connID],2)
+					fmt.Println("[ListenUDP] Received ACK, moved to state 4")
+					}
+				}
 		case 3:
 			if packet.Flags.SYN && packet.Flags.ACK { //retransmission of SYN + ACK, SEND ACK
 				fmt.Println("[ListenUDP] Received SYN+ACK, sending ACK")
@@ -197,14 +221,6 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				}
 			}
  
-		case 2: // Receiver: sent SYN + ACK
-			fmt.Println("[ListenUDP] State 2: Waiting for ACK")
-			if packet.Flags.ACK && !packet.Flags.SYN {
-				connection_states[connID] = 4
-				last_sequence_number[connID] = 4
-				delete(server_data_states[connID],2)
-				fmt.Println("[ListenUDP] Received ACK, moved to state 4")
-			}
  
 		/* case 3: // Sender: Sent ACK/Packet
 			fmt.Println("[ListenUDP] State 3: Processing ACK")

@@ -68,8 +68,13 @@ func main() {
 
 	fmt.Println("Starting GUI...")
 	time.Sleep(2 * time.Second)
-	os.Stdout = nil
-	view.StartGUI(agents)
+	//
+	if true {
+		os.Stdout = nil
+		view.StartGUI(agents)
+		} else {
+			select{}
+		}
 	
 }
 
