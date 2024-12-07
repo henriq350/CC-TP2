@@ -258,14 +258,10 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 						ClientID: "1",
 					},
 				}
-				success := sendWithRetransmission_(connection,response,addr,connID,int(sequence+1))		
-				if success {
-					connection_states[connID] = 6
-				}else {
-					terminate(connID)
-				}
-				//sendUDPPackets_(connection, response, addr)
-			} else {
+				sendWithRetransmission_(connection,response,addr,connID,int(sequence+1))		
+				connection_states[connID] = 6
+					//terminate(connID)
+				} else {
 				fmt.Printf("[ListenUDP] State 4: Processing data packet type: %s\n", packet.Type)
 				var a []string
 				// Process packet based on type
@@ -355,7 +351,28 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				//terminate(connID)
 			}
 		case 6: //SENT FIN + ACK
-			if (packet.Flags.ACK){
+		if (packet.Flags.RET){
+			fmt.Println("[ListenUDP] Received terminate request.")
+			sequence := packet.SequenceNumber
+			last_sequence_number[connID] = uint32(sequence+2)
+			// Send ACK
+			response := &Packet{
+				Type:           RegisterPacket,
+				SequenceNumber: sequence + 1,
+				AckNumber:      sequence,
+				Flags: Flags{
+					SYN: false,
+					ACK: true,
+					RET: true,
+				},
+				Data: AgentRegistration{
+					AgentID:  "server-001",
+					IPv4:     "127.0.0.1",
+					ClientID: "1",
+				},
+			}
+			sendWithRetransmission_(connection,response,addr,connID,int(sequence+1))	
+		}	else if (packet.Flags.ACK){
 				terminate(connID)
 			}
 		//case 7: //SENT ACK
