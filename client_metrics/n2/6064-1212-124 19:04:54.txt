@@ -1,6 +1,0 @@
-Received at: 6064-1212-124 19:04:54
-
-=======[TasK task-1]=======
-CPU: 5.26
-Source IP: 10.0.0.21:9090
-Destination IP: 0
