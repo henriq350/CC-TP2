@@ -16,6 +16,8 @@ var connection_states map[string]int = make(map[string]int)
 var server_data_states map[string]map[int]Packet = make(map[string]map[int]Packet)
 // Map of connection ID to last sequence number
 var last_sequence_number map[string]uint32 = make(map[string]uint32)
+// Received sequences
+var valid_sequence_numbers map[string]map[int]bool = make(map[string]map[int]bool)
 
 
 
@@ -320,10 +322,12 @@ func ListenUdp(type_ string, address string, con *net.UDPConn, channel chan []st
 				}
 				sendUDPPackets_(connection, response, addr)
 				fmt.Printf("[ListenUDP] Sent ACK for sequence %d\n", sequence)
-				
-				channel <- a
-				fmt.Println("[ListenUDP] Sent processed data to channel")
-				fmt.Println("[ListenUDP] Packet processed: ", a)
+				if valid_sequence_numbers[connID][int(sequence)] == true{
+					channel <- a
+					fmt.Println("[ListenUDP] Sent processed data to channel")
+					fmt.Println("[ListenUDP] Packet processed: ", a)
+				}
+				valid_sequence_numbers[connID][int(sequence)] = true
 			}
 		case 5: //SENT FIN, RECEIVED FIN + ACK
 			//received FIN + ACK
