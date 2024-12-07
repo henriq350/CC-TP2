@@ -53,7 +53,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 			fmt.Println("REGISTER!\nREGISTER!\nREGISTER!")
 			// Cria um agente a partir do pacote
 			agent := types.Agent{AgentID: packet[0], AgentIP: packet[5]}
-			currentTime := time.Now().Format("2006-01-02 15:04:05")
+			currentTime := time.Now().Format("15:04:05")
 
 			// Adiciona a lista de agentes
 			agentMutex.Lock()
@@ -62,7 +62,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 			// Adiciona Log
 			log := fmt.Sprintf("Agent %s registered", agent.AgentID)
-			lm.AddLog(agent.AgentID, log, currentTime)
+			lm.AddLog(agent.AgentID, log, currentTime, true)
 			
 			assignTaskToAgent(agent, sendChannel)
 			fmt.Println("Agent assigned task")
@@ -83,12 +83,13 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 			// Adiciona nos Logs
 			log := "Package received"
-			lm.AddLog(agentID ,log, currentTime)
+			currentTime = time.Now().Format("15:04:05")
+			lm.AddLog(agentID ,log, currentTime, false)
 
 		case "Terminate":
 			
 			agent := types.Agent{AgentID: packet[0], AgentIP:  packet[5]}
-			currentTime := time.Now().Format("2006-01-02 15:04:05")
+			currentTime := time.Now().Format("15:04:05")
 
 			
 			agentMutex.Lock()
@@ -97,7 +98,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 
 			// Escreve no log e remove o buffer do maps de logs
 			log := fmt.Sprintf("Agent %s disconnected...", agent.AgentID)
-			lm.AddLog(agent.AgentID, log, currentTime)
+			lm.AddLog(agent.AgentID, log, currentTime, false)
 			lm.RemoveClientBuffer(agent.AgentID)
 	}
 }

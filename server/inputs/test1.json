@@ -1,13 +1,13 @@
 [
     {
         "id": "task-1",
-        "frequency": 3,
+        "frequency": 6,
         "devices": [
             {
                 "id": "r01",
                 "device_metrics": {
-                    "cpu_usage": true,
-                    "ram_usage": false,
+                    "cpu_usage": false,
+                    "ram_usage": true,
                     "interface_stats": []
                 },
                 "link_metrics": {
@@ -38,8 +38,8 @@
                         "frequency": 0
                     },
                     "alertflow_conditions": {
-                        "cpu_usage": 60,
-                        "ram_usage": 0,
+                        "cpu_usage": 0,
+                        "ram_usage": 20,
                         "interface_stats": 0,
                         "packet_loss": 0,
                         "jitter": 0

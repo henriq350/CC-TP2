@@ -11,37 +11,37 @@ import (
 )
 
 type LogManager struct {
-    ClientBuffers map[string][]string
-    GeneralBuffer []string
-    Mutex   sync.Mutex
+	ClientBuffers map[string][]string
+	GeneralBuffer []string
+	Mutex         sync.Mutex
 }
 
 func StringToFile(clientName, fileName, data string) {
 	err := SaveFile(clientName, fileName, []byte(data))
-    if err != nil {
-        fmt.Println("Error saving file:", err)
-    } else {
-        fmt.Println("File saved successfully")
-    }
+	if err != nil {
+		fmt.Println("Error saving file:", err)
+	} else {
+		fmt.Println("File saved successfully")
+	}
 }
 
 func SaveFile(clientName, fileName string, data []byte) error {
-    clientDir := filepath.Join("../client_metrics", clientName)
-    err := CreateFolder(clientName)
-    if err != nil {
-        return err
-    }
-    
-    if !strings.HasSuffix(fileName, ".txt") {
-        fileName += ".txt"
-    }
+	clientDir := filepath.Join("../client_metrics", clientName)
+	err := CreateFolder(clientName)
+	if err != nil {
+		return err
+	}
 
-    filePath := filepath.Join(clientDir, fileName)
-    err = os.WriteFile(filePath, data, os.ModePerm)
-    if err != nil {
-        return fmt.Errorf("error saving file: %v", err)
-    }
-    return nil
+	if !strings.HasSuffix(fileName, ".txt") {
+		fileName += ".txt"
+	}
+
+	filePath := filepath.Join(clientDir, fileName)
+	err = os.WriteFile(filePath, data, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("error saving file: %v", err)
+	}
+	return nil
 }
 
 // Create folder for each client on folder client_metrics
@@ -53,141 +53,156 @@ func CreateFolder(client string) error {
 		return fmt.Errorf("Error creatring CLient's folder: %v", err)
 	}
 
-    CreateLog(clientDir)
+	CreateLog(clientDir)
 	return nil
 }
 
 func CreateLog(dir string) error {
 
-    logFilePath := filepath.Join(dir, "log.txt")
-    logFile, err := os.Create(logFilePath)
-    if err != nil {
-        return fmt.Errorf("Error creating log.txt: %v", err)
-    }
-    defer logFile.Close()
+	logFilePath := filepath.Join(dir, "log.txt")
+	logFile, err := os.Create(logFilePath)
+	if err != nil {
+		return fmt.Errorf("Error creating log.txt: %v", err)
+	}
+	defer logFile.Close()
 
-    return nil
+	return nil
 }
 
-// packet -  "metrica" ,  "valor"  ,”client_ip” ,"dest_ip" ,”task_id” 
-// packet -  packet[0] , packet[1]  ,packet[2]  ,packet[3]  packet[4] 
+// packet -  "metrica" ,  "valor"  ,”client_ip” ,"dest_ip" ,”task_id”
+// packet -  packet[0] , packet[1]  ,packet[2]  ,packet[3]  packet[4]
 func FormatString(data []string) (string, string) {
 
-    var fmtData strings.Builder
+	var fmtData strings.Builder
 
-    currentTime := time.Now().Format("2024-11-14 15:04:05")
-    fmtData.WriteString(fmt.Sprintf("Received at: %s\n\n", currentTime))
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	fmtData.WriteString(fmt.Sprintf("Received at: %s\n\n", currentTime))
 
-    for i := 0; i < len(data); i += 5 {
-        metric := data[i]
-        value := data[i+1]
-        sourceIP := data[i+2]
-        destIP := data[i+3]
-        taskID := data[i+4]
-        fmtData.WriteString(fmt.Sprintf("=======[TasK %s]=======\n%s: %s\nSource IP: %s\nDestination IP: %s\n", taskID, metric, value, sourceIP, destIP))
-    }
+	for i := 0; i < len(data); i += 5 {
+		metric := data[i]
+		value := data[i+1]
+		sourceIP := data[i+2]
+		destIP := data[i+3]
+		taskID := data[i+4]
+		fmtData.WriteString(fmt.Sprintf("=======[TasK %s]=======\n%s: %s\nSource IP: %s\nDestination IP: %s\n", taskID, metric, value, sourceIP, destIP))
+	}
 
-    return fmtData.String(), currentTime
+	return fmtData.String(), currentTime
 }
 
-
-
 /////////////////////////////////////////// LOG LOGIC
-
 
 /////////////////////////////  WRITE LOGS
 
 // Construtor do LogManager
 func NewLogManager() *LogManager {
-    return &LogManager{
-        ClientBuffers: make(map[string][]string),
-        GeneralBuffer: []string{},
-        Mutex:         sync.Mutex{},
-    }
+	return &LogManager{
+		ClientBuffers: make(map[string][]string),
+		GeneralBuffer: []string{},
+		Mutex:         sync.Mutex{},
+	}
 }
-
 
 // log to client
-func (lm *LogManager) AddLog(clientID, log string, time string) {
-    lm.Mutex.Lock()
-    defer lm.Mutex.Unlock()
+func (lm *LogManager) AddLog(clientID, log string, time string, isRegister bool) {
+	lm.Mutex.Lock()
+	defer lm.Mutex.Unlock()
 
-    if _, exists := lm.ClientBuffers[clientID]; !exists {
-        lm.ClientBuffers[clientID] = []string{}
-    }
-    
-    // Adiciona o log ao client
-    lm.ClientBuffers[clientID] = append(lm.ClientBuffers[clientID], fmt.Sprintf("[%s] %s", time, log))
+	if _, exists := lm.ClientBuffers[clientID]; !exists {
+		lm.ClientBuffers[clientID] = []string{}
+	}
 
-    // Formata o log para ser usado no log geral
-    entry := fmt.Sprintf("[%s][%s] %s", time, clientID, log)
-    lm.GeneralBuffer = append(lm.GeneralBuffer, entry)
-
-}   
-
-// remove buffer quando client da terminate
-func (lm *LogManager) RemoveClientBuffer(clientID string) {
-    lm.Mutex.Lock()
-    defer lm.Mutex.Unlock()
-
-    // Guarda o que tem dentro do buffer no disco antes de o eliminar
-    if logs, exists := lm.ClientBuffers[clientID]; exists && len(logs) > 0 {
-        filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
-        file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-        if err != nil {
-            fmt.Printf("Error opening log file for client %s: %v\n", clientID, err)
-            return
-        }
-        defer file.Close()
-
-        for _, log := range logs {
-            file.WriteString(log + "\n")
-        }
+	// Add log to client
+    if !isRegister{
+        clientLog := fmt.Sprintf("[%s] %s", time, log)
+        lm.ClientBuffers[clientID] = append(lm.ClientBuffers[clientID], clientLog)
     }
 
-    delete(lm.ClientBuffers, clientID)
+	// formate log for general log
+	generalLog := fmt.Sprintf("[%s] [%s] %s", time, clientID, log)
+	lm.GeneralBuffer = append(lm.GeneralBuffer, generalLog)
+
 }
 
-// guarda periodicamente os logs do buffer no disco
+// remove client buffer after client terminate
+func (lm *LogManager) RemoveClientBuffer(clientID string) {
+	lm.Mutex.Lock()
+	defer lm.Mutex.Unlock()
+
+	// Saves information inside buffer before removing
+	if logs, exists := lm.ClientBuffers[clientID]; exists && len(logs) > 0 {
+		filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
+		file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Printf("Error opening log file for client %s: %v\n", clientID, err)
+			return
+		}
+		defer file.Close()
+
+		for _, log := range logs {
+			file.WriteString(log + "\n")
+		}
+	}
+
+	delete(lm.ClientBuffers, clientID)
+}
+
+// saves information from buffer to file every X seconds
 func (lm *LogManager) PersistLogs() {
 
-    for {
-        lm.Mutex.Lock()
+	for {
+		lm.Mutex.Lock()
 
-        for clientID, logs := range lm.ClientBuffers {
-        
-            if len(logs) > 0 {
+		for clientID, logs := range lm.ClientBuffers {
 
-                filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
-                file, _ := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if len(logs) > 0 {
 
-                for _, log := range logs {
-                    file.WriteString(log + "\n")
+				filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
+
+				if _, err := os.Stat(filePath); os.IsNotExist(err) {
+                    err := CreateLog(filepath.Join("../client_metrics", clientID))
+                    if err != nil {
+                        fmt.Printf("Error creating file for client %s: %v\n", clientID, err)
+                        continue
+                    }
                 }
 
-                lm.ClientBuffers[clientID] = nil // limpa o buffer dps de guardar dados
-                file.Close()
-            }
-        }
+				file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+                if err != nil {
+                    fmt.Printf("Error opening file for client %s: %v\n", clientID, err)
+                    continue
+                }
 
-        if len(lm.GeneralBuffer) > 0 {
+				for _, log := range logs {
+                    _, err := file.WriteString(log + "\n")
+                    if err != nil {
+                        fmt.Printf("Error writing log for client %s: %v\n", clientID, err)
+                    }
+                }
+				lm.ClientBuffers[clientID] = nil
+				file.Close()
 
-            filePath := "../client_metrics/log.txt"
-            file, _ := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+            } 
+	    }
 
-            for _, log := range lm.GeneralBuffer {
-                file.WriteString(log + "\n")
-            }
+		if len(lm.GeneralBuffer) > 0 {
 
-            lm.GeneralBuffer = nil // Limpar buffer geral após salvar
-            file.Close()
-        }
+			filePath := "../client_metrics/log.txt"
+			file, _ := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
-        lm.Mutex.Unlock()
-        time.Sleep(60 * time.Second) // intervalo de escrita
-    }
+			for _, log := range lm.GeneralBuffer {
+				file.WriteString(log + "\n")
+			}
+
+			lm.GeneralBuffer = nil 
+            fmt.Println(lm.GeneralBuffer)
+			file.Close()
+		}
+
+		lm.Mutex.Unlock()
+		time.Sleep(5 * time.Second)
+	}
 }
-
 
 /////////////////////////////  READ LOGS
 
@@ -195,96 +210,148 @@ func (lm *LogManager) PersistLogs() {
 
 // Lê os logs do buffer para um cliente específico
 func (lm *LogManager) GetLogsFromBuffer(clientID string) []string {
-    lm.Mutex.Lock()
-    defer lm.Mutex.Unlock()
+	lm.Mutex.Lock()
+	defer lm.Mutex.Unlock()
 
-    // Copia para prevenir concorrencia
-    logs := make([]string, len(lm.ClientBuffers[clientID]))
-    copy(logs, lm.ClientBuffers[clientID] )
+	// Copia para prevenir concorrencia
+	logs := make([]string, len(lm.ClientBuffers[clientID]))
+	copy(logs, lm.ClientBuffers[clientID])
 
-    return lm.ClientBuffers[clientID]
-}  
-
+	return logs
+}
 
 func (lm *LogManager) GetLogsFromFile(clientID string) ([]string, error) {
 
-    filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
-    file, err := os.Open(filePath)
+	filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
+	file, err := os.Open(filePath)
 
-    if err != nil {
-        return nil, err
-    }
-    defer file.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
-    var logs []string
-    scanner := bufio.NewScanner(file)
+	var logs []string
+	scanner := bufio.NewScanner(file)
 
-    for scanner.Scan() {
-        logs = append(logs, scanner.Text())
-    }
+	for scanner.Scan() {
+		logs = append(logs, scanner.Text())
+	}
 
-    if err := scanner.Err(); err != nil {
-        return nil, err 
-    }
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 
-    return logs, nil
+	return logs, nil
 }
 
 // combinacao dos logs em buffer e dos logs em memoria
 func (lm *LogManager) GetAllLogs(clientID string) ([]string, error) {
-    logsFromBuffer := lm.GetLogsFromBuffer(clientID)
-    logsFromFile, err := lm.GetLogsFromFile(clientID)
-    if err != nil {
-        return nil, err
-    }
-    return append(logsFromFile, logsFromBuffer...), nil
+
+	logsFromBuffer := lm.GetLogsFromBuffer(clientID)
+	logsFromFile, err := lm.GetLogsFromFile(clientID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return append(logsFromFile, logsFromBuffer...), nil
 }
 
 //////////// General Logs
 
 func (lm *LogManager) GetGeneralLogsFromBuffer() []string {
-    lm.Mutex.Lock()
-    defer lm.Mutex.Unlock()
+	lm.Mutex.Lock()
+	defer lm.Mutex.Unlock()
 
-    logs := make([]string, len(lm.GeneralBuffer))
-    copy(logs, lm.GeneralBuffer)
+	logs := make([]string, len(lm.GeneralBuffer))
+	copy(logs, lm.GeneralBuffer)
 
-    return logs
+	return logs
 }
 
 func (lm *LogManager) GetGeneralLogsFromFile() ([]string, error) {
 
-    filePath := "../client_metrics/log.txt" 
-    file, err := os.Open(filePath)
+	filePath := "../client_metrics/log.txt"
+	file, err := os.Open(filePath)
 
-    if err != nil {
-        return nil, err
-    }
-    defer file.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
-    var logs []string
-    scanner := bufio.NewScanner(file)
+	var logs []string
+	scanner := bufio.NewScanner(file)
 
-    for scanner.Scan() {
-        logs = append(logs, scanner.Text())
-    }
+	for scanner.Scan() {
+		logs = append(logs, scanner.Text())
+	}
 
-    if err := scanner.Err(); err != nil {
-        return nil, err
-    }
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 
-    return logs, nil
+	return logs, nil
 }
-
 
 func (lm *LogManager) GetAllGeneralLogs() ([]string, error) {
 
-    logsFromBuffer := lm.GetGeneralLogsFromBuffer()
-    logsFromFile, err := lm.GetGeneralLogsFromFile()
+	logsFromBuffer := lm.GetGeneralLogsFromBuffer()
+	logsFromFile, err := lm.GetGeneralLogsFromFile()
 
-    if err != nil {
-        return nil, err
+	if err != nil {
+		return nil, err
+	}
+
+	return append(logsFromFile, logsFromBuffer...), nil
+}
+
+////////////////////////////////////////
+
+
+func CreateClientMetrics() {
+    clientMetricsDir := "../client_metrics"
+
+    //check if the folder exists
+    if _, err := os.Stat(clientMetricsDir); os.IsNotExist(err) {
+        
+        //create the metrics folder
+        err := os.MkdirAll(clientMetricsDir, os.ModePerm)
+        if err != nil {
+            fmt.Printf("Error creating folder: %v\n", err)
+            return
+        }
+        fmt.Println("folder created successfully.")
     }
-    
-    return append(logsFromFile, logsFromBuffer...), nil
+
+    //create log file
+    logFilePath := filepath.Join(clientMetricsDir, "log.txt")
+    logFile, err := os.Create(logFilePath)
+    if err != nil {
+        fmt.Printf("Error creating log.txt: %v\n", err)
+        return
+    }
+    defer logFile.Close()
+
+    fmt.Println("log.txt created successfully.")
+}
+
+
+// clears all folderes on client_metrics and log.txt
+func Cleanup() {
+
+	clientMetricsDir := "../client_metrics"
+
+    // check if the folder exists
+    if _, err := os.Stat(clientMetricsDir); os.IsNotExist(err) {
+        fmt.Println("folder does not exist, nothing to clean.")
+        return
+    }
+
+    // temove all files and folders inside client_metrics and the folder itself
+    err := os.RemoveAll(clientMetricsDir)
+    if err != nil {
+        fmt.Printf("Error during cleanup: %v\n", err)
+    } else {
+        fmt.Println("All files and folders removed successfully.")
+    }
 }
