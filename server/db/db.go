@@ -75,19 +75,28 @@ func FormatString(data []string) (string, string) {
 
 	var fmtData strings.Builder
 
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	currentTime := time.Now().Format("15:04:05")
 	fmtData.WriteString(fmt.Sprintf("Received at: %s\n\n", currentTime))
 
-	for i := 0; i < len(data); i += 5 {
-		metric := data[i]
-		value := data[i+1]
-		sourceIP := data[i+2]
-		destIP := data[i+3]
-		taskID := data[i+4]
-		fmtData.WriteString(fmt.Sprintf("=======[TasK %s]=======\n%s: %s\nSource IP: %s\nDestination IP: %s\n", taskID, metric, value, sourceIP, destIP))
-	}
+    metric := data[0]
+    value := data[1]
+    sourceIP := data[2]
+    destIP := data[3]
+    taskID := data[4]
+    fmtData.WriteString(fmt.Sprintf("=======[TasK %s]=======\n%s: %s\nSource IP: %s\nDestination IP: %s\n", taskID, metric, value, sourceIP, destIP))
+	
 
 	return fmtData.String(), currentTime
+}
+
+func FormatStringLog(data []string) string {
+
+    metric := data[0]
+    value := data[1]
+    task := data[4]
+
+    return fmt.Sprintf(" from %s >>> %s: %s", task, metric, value)
+
 }
 
 /////////////////////////////////////////// LOG LOGIC

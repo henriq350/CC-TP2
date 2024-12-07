@@ -82,7 +82,7 @@ func handleUDPMessage(packet []string, agents map[string]types.Agent, lm *db.Log
 			db.StringToFile(agentID , filename, formatedString)
 
 			// Adiciona nos Logs
-			log := "Package received"
+			log := "Packet received" + db.FormatStringLog(metrics)
 			currentTime = time.Now().Format("15:04:05")
 			lm.AddLog(agentID ,log, currentTime, false)
 

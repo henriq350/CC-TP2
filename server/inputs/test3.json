@@ -7,7 +7,7 @@
                 "id": "r01",
                 "device_metrics": {
                     "cpu_usage": false,
-                    "ram_usage": false,
+                    "ram_usage": true,
                     "interface_stats": []
                 },
                 "link_metrics": {
@@ -40,6 +40,105 @@
                     "alertflow_conditions": {
                         "cpu_usage": 0,
                         "ram_usage": 20,
+                        "interface_stats": 0,
+                        "packet_loss": 0,
+                        "jitter": 0
+                    }
+                }
+            }
+        ]
+    }
+    ,
+    {
+        "id": "task-2",
+        "frequency": 10,
+        "devices": [
+            {
+                "id": "r02",
+                "device_metrics": {
+                    "cpu_usage": true,
+                    "ram_usage": false,
+                    "interface_stats": []
+                },
+                "link_metrics": {
+                    "bandwidth": {
+                        "tool": "",
+                        "client": false,
+                        "server_addr": "",
+                        "duration": 0,
+                        "transport": "",
+                        "frequency": 0
+                    },
+                    "jitter": {
+                        "tool": "",
+                        "client": false,
+                        "server_addr": "",
+                        "duration": 0,
+                        "transport": "",
+                        "frequency": 0
+                    },
+                    "packet_loss": {
+                        "destination": "",
+                        "count": 0,
+                        "frequency": 0
+                    },
+                    "latency": {
+                        "destination": "",
+                        "count": 0,
+                        "frequency": 0
+                    },
+                    "alertflow_conditions": {
+                        "cpu_usage": 1,
+                        "ram_usage": 0,
+                        "interface_stats": 0,
+                        "packet_loss": 0,
+                        "jitter": 0
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "id": "task-2",
+        "frequency": 10,
+        "devices": [
+            {
+                "id": "r02",
+                "device_metrics": {
+                    "cpu_usage": true,
+                    "ram_usage": false,
+                    "interface_stats": []
+                },
+                "link_metrics": {
+                    "bandwidth": {
+                        "tool": "",
+                        "client": false,
+                        "server_addr": "",
+                        "duration": 0,
+                        "transport": "",
+                        "frequency": 0
+                    },
+                    "jitter": {
+                        "tool": "",
+                        "client": false,
+                        "server_addr": "",
+                        "duration": 0,
+                        "transport": "",
+                        "frequency": 0
+                    },
+                    "packet_loss": {
+                        "destination": "",
+                        "count": 0,
+                        "frequency": 0
+                    },
+                    "latency": {
+                        "destination": "",
+                        "count": 0,
+                        "frequency": 0
+                    },
+                    "alertflow_conditions": {
+                        "cpu_usage": 1,
+                        "ram_usage": 0,
                         "interface_stats": 0,
                         "packet_loss": 0,
                         "jitter": 0
