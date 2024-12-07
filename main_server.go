@@ -13,7 +13,7 @@ func main() {
 		}
 		
 	}() */
-	udp_address,error := net.ResolveUDPAddr("udp","127.0.0.1:8008")
+	udp_address,error := net.ResolveUDPAddr("udp","10.0.1.20:9090")
 		if error != nil {
 			fmt.Println(error)
 			os.Exit(1)

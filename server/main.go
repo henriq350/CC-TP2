@@ -74,10 +74,15 @@ func main() {
 
 	fmt.Println("Starting GUI...")
 	time.Sleep(2 * time.Second)
-	os.Stdout = nil
-	view.StartGUI(agents, logs)
 
-	// time.Sleep(15 * time.Second)
+	//
+	if true {
+		os.Stdout = nil
+		view.StartGUI(agents)
+		} else {
+			select{}
+		}
+		// time.Sleep(15 * time.Second)
 	// str, _ := logs.GetAllGeneralLogs()
 	// fmt.Println(str)
 	// select {}

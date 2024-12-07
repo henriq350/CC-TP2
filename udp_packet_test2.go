@@ -16,7 +16,7 @@ func main() {
 	} */
 
 	// Create a local address for the client
-	localAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:54310")
+	localAddr, err := net.ResolveUDPAddr("udp", "10.0.0.20:9090")
 	if err != nil {
 		fmt.Printf("Local address resolution error: %v\n", err)
 		os.Exit(1)
@@ -39,7 +39,7 @@ func main() {
 			
 		}() */
 	go udp_handler.ListenUdp("client","",listenConn,ch);
-	go udp_handler.ListenClient("127.0.0.1:8008",ch,listenConn);
+	go udp_handler.ListenClient("10.0.1.20:9090",ch,listenConn);
 
 	var a [] string = make([]string,7,7)/* 
 	"client_id",”task_id”,“tipo”,"metrica","valor",”client_ip”,"dest_ip" */
@@ -49,7 +49,7 @@ func main() {
 	a[2] = "Report"
 	a[3] = "CPU"
 	a[4] = "30"
-	a[5] = "127.0.0.1:54310" 
+	a[5] = "10.0.0.20" 
 	a[6] = "127.0.0.1:8008"
 	time.Sleep(1 * time.Second)
 
