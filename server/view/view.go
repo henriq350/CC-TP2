@@ -1,14 +1,11 @@
 package view
 
 import (
-	"ccproj/server/types"
 	"ccproj/server/db"
+	"ccproj/server/types"
 	"fmt"
 	"io/ioutil"
-
 	"github.com/gdamore/tcell/v2"
-
-	//"ccproj/server/nmsServer"
 	"github.com/rivo/tview"
 )
 
@@ -23,9 +20,11 @@ var logManager = db.NewLogManager()
 
 var agents map[string]types.Agent
 
+
 // StartGUI inicia a interface gráfica no terminal
-func StartGUI(agentMap map[string]types.Agent) {
+func StartGUI(agentMap map[string]types.Agent, lm *db.LogManager) {
 	
+	logManager = lm
 	agents = agentMap
 
 	app = tview.NewApplication()
@@ -45,6 +44,7 @@ func StartGUI(agentMap map[string]types.Agent) {
 
 	menuStack = []*tview.List{mainMenu}
 
+
 	if err := app.SetRoot(mainMenu, true).Run(); err != nil {
 		panic(err)
 	}
@@ -53,13 +53,6 @@ func StartGUI(agentMap map[string]types.Agent) {
 // showClientsMenu exibe o menu de clientes conectados
 func showClientsMenu() {
 	clientsMenu := tview.NewList()
-
-	// for id, agent := range agents {
-	//     agentID := id
-	//     clientsMenu.AddItem(fmt.Sprintf("%s - %s", agent.AgentID, agent.IPv4.String()), "", 0, func() {
-	//         showClientFiles(agentID)
-	//     })
-	// }
 
 	for id, agent := range agents {
 		agentID := id

@@ -47,6 +47,9 @@ func main() {
 	// Clear DB
 	db.Cleanup()
 
+	// create metrics folder
+	db.CreateClientMetrics()
+
 	logs := db.NewLogManager()
 	fmt.Println("Agent maps created...")
 	agents := make(map[string]types.Agent)
@@ -72,8 +75,12 @@ func main() {
 	fmt.Println("Starting GUI...")
 	time.Sleep(2 * time.Second)
 	os.Stdout = nil
-	view.StartGUI(agents)
-	
+	view.StartGUI(agents, logs)
+
+	// time.Sleep(15 * time.Second)
+	// str, _ := logs.GetAllGeneralLogs()
+	// fmt.Println(str)
+	// select {}
 }
 
 

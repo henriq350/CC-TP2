@@ -28,7 +28,7 @@ func handleAlertMessage(alert th.AlertMessage, lm *db.LogManager) {
 	formattedLog := formatAlertMessage(alert)
 	
 	//Add to respetive buffer
-	lm.AddLog(alert.AgentID, formattedLog, currentTime)
+	lm.AddLog(alert.AgentID, formattedLog, currentTime, false)
 }
 
 func formatAlertMessage(alert th.AlertMessage) string {
