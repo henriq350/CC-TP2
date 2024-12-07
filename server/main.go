@@ -4,8 +4,8 @@ import (
 	"ccproj/server/db"
 	sAlertFlow "ccproj/server/serverAlertFlow"
 	sNetTask "ccproj/server/serverNetTask"
-	"ccproj/server/view"
 	"ccproj/server/types"
+	"ccproj/server/view"
 	"ccproj/utils"
 	"fmt"
 	"os"
@@ -43,6 +43,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	// Clear DB
+	db.Cleanup()
 
 	logs := db.NewLogManager()
 	fmt.Println("Agent maps created...")
