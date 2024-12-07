@@ -141,19 +141,16 @@ func monitorRAM(frequency int, threshold float32, send chan <- []string) {
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second)
     defer ticker.Stop()
 
-    for {
-        select {
-        case <-ticker.C:
-            ramUsage, err := metrics.GetRAMUsage()
-            if err != nil {
-                fmt.Println("Error getting RAM usage:", err)
-                continue
-            }
-
-
-            message := []string{"RAM", strconv.FormatFloat(ramUsage, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
-            send <- message
+    for range ticker.C {
+        
+        ramUsage, err := metrics.GetRAMUsage()
+        if err != nil {
+            fmt.Println("Error getting RAM usage:", err)
+            continue
         }
+
+        message := []string{"RAM", strconv.FormatFloat(ramUsage, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
+        send <- message
     }
 }
 
@@ -161,19 +158,17 @@ func monitorBandwidth(frequency int, ipDest string, duration int, send chan <- [
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second)
     defer ticker.Stop()
 
-    for {
-        select {
-        case <-ticker.C:
-            bandwidth, _, err := metrics.IperfMetrics(ipDest, duration)
-            if err != nil {
-                fmt.Println("Error getting bandwidth:", err)
-                continue
-            }
-
-            message := []string{"Bandwidth", strconv.FormatFloat(bandwidth, 'f', 2, 64), ""}
-            send <- message
-            
+    for range ticker.C {
+        
+        bandwidth, _, err := metrics.IperfMetrics(ipDest, duration)
+        if err != nil {
+            fmt.Println("Error getting bandwidth:", err)
+            continue
         }
+
+        message := []string{"Bandwidth", strconv.FormatFloat(bandwidth, 'f', 2, 64), ""}
+        send <- message
+        
     }
 }
 
@@ -181,19 +176,15 @@ func monitorLatency(frequency int, ipDest string, count int, send chan <- []stri
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second)
     defer ticker.Stop()
 
-    for {
-        select {
-        case <-ticker.C:
-            latency, _, err := metrics.PingMetrics(ipDest, count)
-            if err != nil {
-                fmt.Println("Error getting latency:", err)
-                continue
-            }
-
-            message := []string{"Latency", strconv.FormatFloat(latency, 'f', 2, 64), ""}
-            send <- message
-            
+    for range ticker.C {
+        latency, _, err := metrics.PingMetrics(ipDest, count)
+        if err != nil {
+            fmt.Println("Error getting latency:", err)
+            continue
         }
+
+        message := []string{"Latency", strconv.FormatFloat(latency, 'f', 2, 64), ""}
+        send <- message
     }
 }
 
@@ -201,20 +192,15 @@ func monitorPacketLoss(frequency int, threshold float32, ipDest string, count in
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second)
     defer ticker.Stop()
 
-    for {
-        select {
-        case <-ticker.C:
+    for range ticker.C {
             _, packetLoss, err := metrics.PingMetrics(ipDest, count)
             if err != nil {
                 fmt.Println("Error getting packet loss:", err)
                 continue
             }
 
-            
             message := []string{"PacketLoss", strconv.FormatFloat(packetLoss, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
             send <- message
-            
-        }
     }
 }
 
@@ -222,18 +208,14 @@ func monitorJitter(frequency int, threshold float32, ipDest string, duration int
 	ticker := time.NewTicker(time.Duration(frequency) * time.Second)
     defer ticker.Stop()
 
-    for {
-        select {
-        case <-ticker.C:
-            _, jitter, err := metrics.IperfMetrics(ipDest, duration)
-            if err != nil {
-                fmt.Println("Error getting jitter:", err)
-                continue
-            }
-
-            
-            message := []string{"Jitter", strconv.FormatFloat(jitter, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
-            send <- message
+    for range ticker.C{
+        _, jitter, err := metrics.IperfMetrics(ipDest, duration)
+        if err != nil {
+            fmt.Println("Error getting jitter:", err)
+            continue
         }
+
+        message := []string{"Jitter", strconv.FormatFloat(jitter, 'f', 2, 64), strconv.FormatFloat(float64(threshold), 'f', 2, 64)}
+        send <- message
     }
 }
