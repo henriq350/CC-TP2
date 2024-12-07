@@ -43,6 +43,7 @@ func main() {
 
     defer close(receive)
     defer close(sendChannel)
+    defer close(terminateChan)
 	
 	go cNetTask.HandleUDP(clientIP, udpServerAddr ,receive, sendChannel, terminateChan)
 
@@ -68,6 +69,6 @@ func main() {
     terminate := []string{clientID, "","Terminate","","",clientIP,udpServerAddr}
 	sendChannel <- terminate
     
-    <-terminateChan
-    fmt.Println("Terminated!")
+    // <-terminateChan
+    // fmt.Println("Terminated!")
 }

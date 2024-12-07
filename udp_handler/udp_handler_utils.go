@@ -8,7 +8,7 @@ import (
 )
 
 func sendUDPPackets(con *net.UDPConn, p *Packet, destination string) {
-	print("SendUDPPacket called. Destination: ",destination,"\n")
+	//print("SendUDPPacket called. Destination: ",destination,"\n")
 	udpAddr, err := net.ResolveUDPAddr("udp", destination)
 	if err != nil {
 		fmt.Printf("Error resolving address: %v\n", err)
@@ -38,7 +38,7 @@ var waitTime int = 7
 var maxRetries int = 5
 
 func sendWithRetransmission(con *net.UDPConn, p *Packet, destination string, con_id string, sequence_no int) bool{
-	print("[SEND] Convert address ",destination,".\n")
+	//print("[SEND] Convert address ",destination,".\n")
     udpAddr, err := net.ResolveUDPAddr("udp", destination)
 	if err != nil {
 		fmt.Printf("Error resolving address: %v\n", err)
