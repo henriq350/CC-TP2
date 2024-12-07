@@ -39,11 +39,12 @@ func main() {
 	Tasks := make(map[string]tasks.Task)
 	receive := make(chan []string)
     sendChannel := make(chan []string)
+    terminateChan := make(chan bool)
 
     defer close(receive)
     defer close(sendChannel)
 	
-	go cNetTask.HandleUDP(clientIP, udpServerAddr ,receive, sendChannel)
+	go cNetTask.HandleUDP(clientIP, udpServerAddr ,receive, sendChannel, terminateChan)
 
 	register := []string{clientID, "","Register","","",clientIP,udpServerAddr}
 	sendChannel <- register
@@ -66,5 +67,7 @@ func main() {
 
     terminate := []string{clientID, "","Terminate","","",clientIP,udpServerAddr}
 	sendChannel <- terminate
-
+    
+    <-terminateChan
+    fmt.Println("Terminated!")
 }

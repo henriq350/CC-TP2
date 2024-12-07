@@ -1,10 +1,9 @@
-[16:50:22] [teste] Agent PC2 registered
-[16:50:28] [teste] Package received
-[16:50:28] [teste] [Alert][task-1] RAM Usage: 73.7 - Threshold: 20.0
-[16:50:29] [teste] Agent PC2 registered
-[16:50:34] [teste] Package received
-[16:50:34] [teste] [Alert][task-1] RAM Usage: 73.8 - Threshold: 20.0
-[16:50:35] [teste] [Alert][task-1] RAM Usage: 73.8 - Threshold: 20.0
-[16:50:35] [teste] Package received
-[16:50:35] [teste] Package received
-[16:50:36] [teste] Agent PC2 registered
+[17:27:48] [PC2] Agent PC2 registered
+[17:27:54] [PC2] Package received
+[17:27:54] [PC2] [Alert][task-1] RAM Usage: 75.0 - Threshold: 20.0
+[17:27:55] [PC2] Agent PC2 registered
+[17:28:00] [PC2] Package received
+[17:28:01] [PC2] Package received
+[17:28:01] [PC2] Package received
+[17:28:02] [PC2] Agent PC2 registered
+[17:28:05] [PC2] Agent PC2 registered
