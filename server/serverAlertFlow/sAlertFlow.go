@@ -23,7 +23,7 @@ func HandleTCP(tcpAddr string,  agents map[string]types.Agent, lm *db.LogManager
 
 
 func handleAlertMessage(alert th.AlertMessage, lm *db.LogManager) {
-	currentTime := time.Now().Format("2024-11-14 15:04:05")
+	currentTime := time.Now().Format("15:04:05")
 
 	formattedLog := formatAlertMessage(alert)
 	

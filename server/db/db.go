@@ -114,13 +114,13 @@ func (lm *LogManager) AddLog(clientID, log string, time string, isRegister bool)
 
 	// Add log to client
     if !isRegister{
-        entry := fmt.Sprintf("[%s] %s", time, log)
-        lm.ClientBuffers[clientID] = append(lm.ClientBuffers[clientID], entry)
+        clientLog := fmt.Sprintf("[%s] %s", time, log)
+        lm.ClientBuffers[clientID] = append(lm.ClientBuffers[clientID], clientLog)
     }
 
 	// formate log for general log
-	entry := fmt.Sprintf("[%s][%s] %s", time, clientID, log)
-	lm.GeneralBuffer = append(lm.GeneralBuffer, entry)
+	generalLog := fmt.Sprintf("[%s] [%s] %s", time, clientID, log)
+	lm.GeneralBuffer = append(lm.GeneralBuffer, generalLog)
 
 }
 
@@ -153,16 +153,21 @@ func (lm *LogManager) PersistLogs() {
 	for {
 		lm.Mutex.Lock()
 
-        fmt.Println("PersistLogs: Iterating over ClientBuffers")
 		for clientID, logs := range lm.ClientBuffers {
 
-            fmt.Printf("PersistLogs: Processing logs for client %s\n", clientID)
 			if len(logs) > 0 {
 
 				filePath := fmt.Sprintf("../client_metrics/%s/log.txt", clientID)
-                fmt.Printf("PersistLogs: Writing to file %s\n", filePath)
-				file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
+				if _, err := os.Stat(filePath); os.IsNotExist(err) {
+                    err := CreateLog(filepath.Join("../client_metrics", clientID))
+                    if err != nil {
+                        fmt.Printf("Error creating file for client %s: %v\n", clientID, err)
+                        continue
+                    }
+                }
+
+				file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
                 if err != nil {
                     fmt.Printf("Error opening file for client %s: %v\n", clientID, err)
                     continue
@@ -177,11 +182,7 @@ func (lm *LogManager) PersistLogs() {
 				lm.ClientBuffers[clientID] = nil
 				file.Close()
 
-                fmt.Printf("PersistLogs: Logs for client %s written to file\n", clientID)
-            } else {
-                fmt.Printf("PersistLogs: No logs to write for client %s\n", clientID)
-            
-		    }
+            } 
 	    }
 
 		if len(lm.GeneralBuffer) > 0 {
@@ -199,7 +200,7 @@ func (lm *LogManager) PersistLogs() {
 		}
 
 		lm.Mutex.Unlock()
-		time.Sleep(30 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 

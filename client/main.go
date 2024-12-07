@@ -64,7 +64,7 @@ func main() {
     sig := <-sigChan
     fmt.Printf("Signal recevied %s. Sending terminate packet...\n", sig)
 
-    terminate := []string{clientID, "","Terminate","","",clientIP,""}
+    terminate := []string{clientID, "","Terminate","","",clientIP,udpServerAddr}
 	sendChannel <- terminate
 
 }

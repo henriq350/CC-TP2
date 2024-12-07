@@ -17,7 +17,6 @@ var logView *tview.TextView
 var mM *tview.List
 var menuStack []*tview.List
 var logManager = db.NewLogManager()
-
 var agents map[string]types.Agent
 
 
@@ -43,7 +42,6 @@ func StartGUI(agentMap map[string]types.Agent, lm *db.LogManager) {
 	mainMenu.SetBorder(true).SetTitle("Main Menu").SetTitleAlign(tview.AlignLeft)
 
 	menuStack = []*tview.List{mainMenu}
-
 
 	if err := app.SetRoot(mainMenu, true).Run(); err != nil {
 		panic(err)
@@ -192,6 +190,7 @@ func showLogs() {
     pushMenu(logContent)
     app.SetRoot(logContent, true)
 }
+
 
 // AddLog adiciona uma entrada de log
 func AddLog(log string) {
